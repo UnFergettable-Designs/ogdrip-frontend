@@ -12,7 +12,7 @@ export function initSentry() {
     return;
   }
 
-  const dsn = import.meta.env?.PUBLIC_SENTRY_DSN;
+  const dsn = import.meta.env.PUBLIC_SENTRY_DSN;
   
   if (!dsn) {
     console.warn('Sentry initialization skipped - no DSN provided');
@@ -22,9 +22,9 @@ export function initSentry() {
   try {
     Sentry.init({
       dsn,
-      environment: import.meta.env?.PUBLIC_SENTRY_ENVIRONMENT || 'production',
-      release: import.meta.env?.PUBLIC_SENTRY_RELEASE || '1.0.0',
-      debug: import.meta.env?.PUBLIC_SENTRY_DEBUG === 'true',
+      environment: import.meta.env.PUBLIC_SENTRY_ENVIRONMENT || 'production',
+      release: import.meta.env.PUBLIC_SENTRY_RELEASE || '1.0.0',
+      debug: import.meta.env.PUBLIC_SENTRY_DEBUG === 'true',
       tracesSampleRate: 0.2, // Sample 20% of transactions for performance monitoring
       // Configure which URLs to trace:
       tracePropagationTargets: [

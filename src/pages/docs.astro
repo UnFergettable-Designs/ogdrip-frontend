@@ -3,8 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { BROWSER } from "esm-env";
 
 // Check if admin authentication is enabled and available
-const adminAuthRequired =
-  import.meta.env?.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+const adminAuthRequired = import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
 let isAdmin = false;
 
 // Get admin status from cookies

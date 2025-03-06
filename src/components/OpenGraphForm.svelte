@@ -42,15 +42,15 @@
 
   // Get API URL from environment or use default - avoid using process
   const API_URL =
-    import.meta.env?.PUBLIC_BACKEND_URL ||
+    import.meta.env.PUBLIC_BACKEND_URL ||
     // During development, these might be available
-    import.meta.env?.BACKEND_URL ||
+    import.meta.env.BACKEND_URL ||
     // Fallback for safety
     "http://localhost:8888";
 
   // Log the API URL when in development
   // Instead of process.env checks, use this pattern for browser-safe code
-  const isDevelopment = import.meta.env?.DEV === true;
+  const isDevelopment = import.meta.env.DEV === true;
   if (isDevelopment) {
     console.log("API URL:", API_URL);
     console.log("Environment:", import.meta.env);
@@ -646,7 +646,7 @@
   </form>
 
   <!-- Debug panel for development -->
-  {#if import.meta.env?.DEV}
+  {#if import.meta.env.DEV}
     <div class="debug-panel">
       <h3>Debug Information</h3>
       <div class="debug-item">

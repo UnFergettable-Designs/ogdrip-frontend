@@ -9,10 +9,10 @@ let totalCount = 0;
 let pageSize = 20;
 let currentPage = 1;
 let isAuthenticated = false;
-let adminAuthRequired = import.meta.env?.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+let adminAuthRequired = import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
 
 // Get API URL from environment variables
-const API_URL = import.meta.env?.PUBLIC_BACKEND_URL || "http://localhost:8888";
+const API_URL = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
 
 // If we're in the server, fetch the generations
 if (!BROWSER) {
@@ -215,8 +215,8 @@ if (!BROWSER) {
   // Client-side JavaScript to handle pagination, filtering, and details view
   document.addEventListener("DOMContentLoaded", () => {
     const API_URL =
-      import.meta.env?.PUBLIC_BACKEND_URL || "http://localhost:8888";
-    const adminAuthRequired = import.meta.env?.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+      import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
+    const adminAuthRequired = import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
     const pageSize = 20;
     let currentPage = 1;
     let totalCount = parseInt(
