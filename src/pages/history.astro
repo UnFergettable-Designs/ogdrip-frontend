@@ -17,24 +17,35 @@ const API_URL = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
 // If we're in the server, fetch the generations
 if (!BROWSER) {
   // Check authentication from cookies if admin auth is required
-  const cookies = Astro.request.headers.get('cookie') || '';
-  const adminToken = cookies.split(';').find(c => c.trim().startsWith('admin_token='));
-  
+  const cookies = Astro.request.headers.get("cookie") || "";
+  const adminToken = cookies
+    .split(";")
+    .find((c) => c.trim().startsWith("admin_token="));
+
   if (adminAuthRequired && !adminToken) {
-    // No authentication, will show login form
-    isAuthenticated = false;
+    // No authentication, redirect to login page
+    return Astro.redirect(
+      `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
+    );
   } else {
     isAuthenticated = !adminAuthRequired || !!adminToken;
-    
+
     if (isAuthenticated) {
       try {
         // Extract token from cookie if admin auth is required
-        const token = adminAuthRequired ? adminToken?.split('=')[1].trim() : null;
+        const token = adminAuthRequired
+          ? adminToken?.split("=")[1].trim()
+          : null;
         const headers: RequestInit = {
-          headers: adminAuthRequired ? { 'Authorization': `Bearer ${token}` } : undefined
+          headers: adminAuthRequired
+            ? { Authorization: `Bearer ${token}` }
+            : undefined,
         };
-        
-        const resp = await fetch(`${API_URL}/api/history?limit=${pageSize}`, headers);
+
+        const resp = await fetch(
+          `${API_URL}/api/history?limit=${pageSize}`,
+          headers
+        );
         if (resp.ok) {
           const data = await resp.json();
           if (data.success) {
@@ -42,18 +53,20 @@ if (!BROWSER) {
             totalCount = data.data.total || 0;
           } else {
             if (resp.status === 401) {
-              // Token is invalid
-              isAuthenticated = false;
-              error = "Admin authentication failed. Please log in again.";
+              // Token is invalid, redirect to login
+              return Astro.redirect(
+                `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
+              );
             } else {
               error = data.message || "Failed to fetch history";
             }
           }
         } else {
           if (resp.status === 401) {
-            // Token is invalid
-            isAuthenticated = false;
-            error = "Admin authentication failed. Please log in again.";
+            // Token is invalid, redirect to login
+            return Astro.redirect(
+              `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
+            );
           } else {
             error = `API error: ${resp.status} ${resp.statusText}`;
           }
@@ -69,145 +82,140 @@ if (!BROWSER) {
 
 <Layout title="Generation History - Open Graph Generator">
   <main>
-    <h1>Generation History</h1>
-    <p class="subtitle">View your recent Open Graph image generations</p>
+    <div class="header-container">
+      <h1>Generation History</h1>
+      <p class="subtitle">View your recent Open Graph image generations</p>
 
-    {adminAuthRequired && !isAuthenticated && (
-      <div class="admin-login">
-        <h2>Admin Login Required</h2>
-        <p>This page is restricted to administrators only.</p>
-        
-        <form id="admin-login-form" class="login-form">
-          <div class="form-group">
-            <label for="admin-token">Admin Token</label>
-            <input type="password" id="admin-token" name="admin-token" required />
+      {
+        isAuthenticated && (
+          <div class="admin-controls">
+            <span class="admin-badge">Admin</span>
+            <a href="/admin/logout" class="logout-button">
+              Logout
+            </a>
           </div>
-          <button type="submit" class="login-button">Login</button>
-          <p id="login-error" class="error-text"></p>
-        </form>
+        )
+      }
+    </div>
+
+    {
+      error && (
+        <div class="error-message">
+          <p>Error: {error}</p>
+          <button id="retry-button">Retry</button>
+        </div>
+      )
+    }
+
+    <div class="history-controls">
+      <div class="filter-controls">
+        <label for="status-filter">Filter by status:</label>
+        <select id="status-filter">
+          <option value="all">All</option>
+          <option value="completed">Completed</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
       </div>
-    )}
 
-    {(!adminAuthRequired || isAuthenticated) && (
-      <>
-        {error && (
-          <div class="error-message">
-            <p>Error: {error}</p>
-            <button id="retry-button">Retry</button>
-          </div>
-        )}
+      <div class="sort-controls">
+        <label for="sort-order">Sort by:</label>
+        <select id="sort-order">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+      </div>
+    </div>
 
-        <div class="history-controls">
-          <div class="filter-controls">
-            <label for="status-filter">Filter by status:</label>
-            <select id="status-filter">
-              <option value="all">All</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
-
-          <div class="sort-controls">
-            <label for="sort-order">Sort by:</label>
-            <select id="sort-order">
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="generations-container" class="generations-grid">
-          {
-            generations.map(
-              (gen: {
-                id: unknown;
-                status: unknown;
-                image_path: any;
-                title: any;
-                description: any;
-                created_at: string | number | Date;
-              }) => (
-                <div
-                  class="generation-card"
-                  data-id={gen.id}
-                  data-status={gen.status}
-                >
-                  <div class="image-container">
-                    {gen.image_path && (
-                      <img
-                        src={`${API_URL}/api/download/${gen.id}/image`}
-                        alt={gen.title || "Generated Image"}
-                        loading="lazy"
-                      />
-                    )}
-                    {!gen.image_path && (
-                      <div class="no-image">No image available</div>
-                    )}
-                    <div class="status-badge status-{gen.status}">{gen.status}</div>
-                  </div>
-                  <div class="generation-details">
-                    <h3>{gen.title || "Untitled"}</h3>
-                    <p class="description">{gen.description || "No description"}</p>
-                    <p class="created-date">
-                      Created: {new Date(gen.created_at).toLocaleString()}
-                    </p>
-                    <div class="generation-actions">
-                      {gen.status === "completed" && (
-                        <a
-                          href={`${API_URL}/api/download/${gen.id}`}
-                          class="download-button"
-                        >
-                          Download
-                        </a>
-                      )}
-                      <button class="view-details-button" data-id={gen.id}>
-                        View Details
-                      </button>
-                    </div>
-                  </div>
+    <div id="generations-container" class="generations-grid">
+      {
+        generations.map(
+          (gen: {
+            id: unknown;
+            status: unknown;
+            image_path: any;
+            title: any;
+            description: any;
+            created_at: string | number | Date;
+          }) => (
+            <div
+              class="generation-card"
+              data-id={gen.id}
+              data-status={gen.status}
+            >
+              <div class="image-container">
+                {gen.image_path && (
+                  <img
+                    src={`${API_URL}/api/download/${gen.id}/image`}
+                    alt={gen.title || "Generated Image"}
+                    loading="lazy"
+                  />
+                )}
+                {!gen.image_path && (
+                  <div class="no-image">No image available</div>
+                )}
+                <div class="status-badge status-{gen.status}">{gen.status}</div>
+              </div>
+              <div class="generation-details">
+                <h3>{gen.title || "Untitled"}</h3>
+                <p class="description">{gen.description || "No description"}</p>
+                <p class="created-date">
+                  Created: {new Date(gen.created_at).toLocaleString()}
+                </p>
+                <div class="generation-actions">
+                  {gen.status === "completed" && (
+                    <a
+                      href={`${API_URL}/api/download/${gen.id}`}
+                      class="download-button"
+                    >
+                      Download
+                    </a>
+                  )}
+                  <button class="view-details-button" data-id={gen.id}>
+                    View Details
+                  </button>
                 </div>
-              )
-            )
-          }
-        </div>
-
-        {
-          generations.length === 0 && !error && (
-            <div class="no-generations">
-              <p>
-                No generations found. Try generating some Open Graph images first!
-              </p>
-              <a href="/" class="button">
-                Go to Generator
-              </a>
+              </div>
             </div>
           )
-        }
+        )
+      }
+    </div>
 
-        <div class="pagination">
-          <button id="prev-page" disabled={currentPage <= 1}>Previous</button>
-          <span id="page-info"
-            >Page {currentPage} of {Math.ceil(totalCount / pageSize) || 1}</span
-          >
-          <button
-            id="next-page"
-            disabled={currentPage >= Math.ceil(totalCount / pageSize)}>Next</button
-          >
+    {
+      generations.length === 0 && !error && (
+        <div class="no-generations">
+          <p>
+            No generations found. Try generating some Open Graph images first!
+          </p>
+          <a href="/" class="button">
+            Go to Generator
+          </a>
         </div>
+      )
+    }
 
-        <!-- Modal for generation details -->
-        <div id="details-modal" class="modal">
-          <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Generation Details</h2>
-            <div id="modal-content">
-              <!-- Will be populated by JavaScript -->
-            </div>
-          </div>
+    <div class="pagination">
+      <button id="prev-page" disabled={currentPage <= 1}>Previous</button>
+      <span id="page-info"
+        >Page {currentPage} of {Math.ceil(totalCount / pageSize) || 1}</span
+      >
+      <button
+        id="next-page"
+        disabled={currentPage >= Math.ceil(totalCount / pageSize)}>Next</button
+      >
+    </div>
+
+    <!-- Modal for generation details -->
+    <div id="details-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Generation Details</h2>
+        <div id="modal-content">
+          <!-- Will be populated by JavaScript -->
         </div>
-      </>
-    )}
+      </div>
+    </div>
   </main>
 </Layout>
 
@@ -216,7 +224,8 @@ if (!BROWSER) {
   document.addEventListener("DOMContentLoaded", () => {
     const API_URL =
       import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
-    const adminAuthRequired = import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+    const adminAuthRequired =
+      import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
     const pageSize = 20;
     let currentPage = 1;
     let totalCount = parseInt(
@@ -229,45 +238,6 @@ if (!BROWSER) {
     let currentSort = "newest";
     let adminToken = getCookie("admin_token") || "";
 
-    // Handle admin login form
-    const adminLoginForm = document.getElementById("admin-login-form");
-    if (adminLoginForm) {
-      adminLoginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const tokenInput = document.getElementById("admin-token") as HTMLInputElement;
-        const token = tokenInput.value.trim();
-        const loginError = document.getElementById("login-error");
-        
-        if (!token) {
-          if (loginError) loginError.textContent = "Please enter an admin token";
-          return;
-        }
-        
-        try {
-          // Verify the token with the backend
-          const response = await fetch(`${API_URL}/api/admin/verify`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            }
-          });
-          
-          if (response.ok) {
-            // Set cookie and reload page
-            setCookie("admin_token", token, 1); // Expires in 1 day
-            window.location.reload();
-          } else {
-            // Invalid token
-            if (loginError) loginError.textContent = "Invalid admin token";
-          }
-        } catch (err) {
-          console.error("Error verifying admin token:", err);
-          if (loginError) loginError.textContent = "Error connecting to server";
-        }
-      });
-    }
-    
     const generationsContainer = document.getElementById(
       "generations-container"
     );
@@ -285,18 +255,18 @@ if (!BROWSER) {
       let expires = "";
       if (days) {
         const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
         expires = "; expires=" + date.toUTCString();
       }
-      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+      document.cookie = name + "=" + (value || "") + expires + "; path=/";
     }
-    
+
     function getCookie(name: string) {
       const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for(let i=0; i < ca.length; i++) {
+      const ca = document.cookie.split(";");
+      for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        while (c.charAt(0) == " ") c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
       }
       return null;
@@ -309,11 +279,13 @@ if (!BROWSER) {
         const filterParam =
           currentFilter !== "all" ? `&status=${currentFilter}` : "";
         const sortParam = currentSort === "oldest" ? "&sort=asc" : "";
-        
+
         // Include authorization header if admin auth is required
-        const headers = adminAuthRequired ? { 
-          'Authorization': `Bearer ${adminToken}`
-        } : {};
+        const headers = adminAuthRequired
+          ? {
+              Authorization: `Bearer ${adminToken}`,
+            }
+          : {};
 
         const response = await fetch(
           `${API_URL}/api/history?limit=${pageSize}&offset=${offset}${filterParam}${sortParam}`,
@@ -322,8 +294,7 @@ if (!BROWSER) {
 
         if (response.status === 401) {
           // Authentication failed, redirect to login
-          setCookie("admin_token", "", -1); // Clear the cookie
-          window.location.reload();
+          window.location.href = `/admin/login?redirect=${encodeURIComponent(window.location.pathname)}`;
           return;
         }
 
@@ -349,7 +320,6 @@ if (!BROWSER) {
           <div class="error-message">
             <p>Error: ${err.message}</p>
           </div>
-
         `;
         }
       }
@@ -435,16 +405,19 @@ if (!BROWSER) {
     async function showDetails(id: string | undefined) {
       try {
         // Include authorization header if admin auth is required
-        const headers = adminAuthRequired ? { 
-          'Authorization': `Bearer ${adminToken}`
-        } : {};
-        
-        const response = await fetch(`${API_URL}/api/history/${id}`, { headers: headers as HeadersInit });
+        const headers = adminAuthRequired
+          ? {
+              Authorization: `Bearer ${adminToken}`,
+            }
+          : {};
+
+        const response = await fetch(`${API_URL}/api/history/${id}`, {
+          headers: headers as HeadersInit,
+        });
 
         if (response.status === 401) {
           // Authentication failed, redirect to login
-          setCookie("admin_token", "", -1); // Clear the cookie
-          window.location.reload();
+          window.location.href = `/admin/login?redirect=${encodeURIComponent(window.location.pathname)}`;
           return;
         }
 
@@ -583,7 +556,7 @@ if (!BROWSER) {
     }
 
     // Initial load if no server-side data
-    if (generationsContainer && generationsContainer.children.length === 0 && !adminLoginForm) {
+    if (generationsContainer && generationsContainer.children.length === 0) {
       loadGenerations();
     }
   });
@@ -596,6 +569,14 @@ if (!BROWSER) {
     padding: 2rem;
   }
 
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
   h1 {
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
@@ -604,67 +585,37 @@ if (!BROWSER) {
 
   .subtitle {
     color: #666;
-    margin-bottom: 2rem;
+    margin-bottom: 0;
   }
 
-  /* Admin Login Form Styles */
-  .admin-login {
-    max-width: 400px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  .admin-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .admin-login h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: #333;
-  }
-
-  .login-form {
-    margin-top: 1.5rem;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-  }
-
-  .login-button {
-    width: 100%;
-    padding: 0.75rem;
+  .admin-badge {
     background-color: #4caf50;
     color: white;
-    border: none;
+    padding: 0.25rem 0.5rem;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 1rem;
+    font-size: 0.85rem;
+    font-weight: bold;
   }
 
-  .login-button:hover {
-    background-color: #3e8e41;
+  .logout-button {
+    background-color: #f1f1f1;
+    color: #333;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background-color 0.2s;
   }
 
-  .error-text {
-    color: #721c24;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
+  .logout-button:hover {
+    background-color: #e7e7e7;
+    text-decoration: underline;
   }
 
   .history-controls {
@@ -935,6 +886,15 @@ if (!BROWSER) {
   @media (max-width: 768px) {
     .details-grid {
       grid-template-columns: 1fr;
+    }
+
+    .header-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .admin-controls {
+      margin-top: 1rem;
     }
   }
 

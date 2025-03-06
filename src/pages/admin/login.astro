@@ -1,0 +1,307 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { BROWSER } from "esm-env";
+
+// Check if we already have an admin token
+let adminToken = "";
+let error = "";
+let redirectTo = "/history"; // Default redirect
+
+// If we're in the browser, we can't do this server-side
+if (!BROWSER) {
+  // Check for admin token in cookies
+  const cookies = Astro.request.headers.get("cookie") || "";
+  const tokenCookie = cookies
+    .split(";")
+    .find((c) => c.trim().startsWith("admin_token="));
+
+  if (tokenCookie) {
+    adminToken = tokenCookie.split("=")[1].trim();
+
+    // If we already have a token, redirect to the target page
+    if (adminToken) {
+      return Astro.redirect(redirectTo);
+    }
+  }
+
+  // Get the redirect URL from query params
+  const url = new URL(Astro.request.url);
+  const redirectParam = url.searchParams.get("redirect");
+  if (redirectParam) {
+    // Validate redirect URL to prevent open redirect vulnerabilities
+    // Only allow redirects to paths within our own domain
+    if (redirectParam.startsWith("/") && !redirectParam.includes("://")) {
+      redirectTo = redirectParam;
+    }
+  }
+}
+---
+
+<Layout title="Admin Login - OGDrip">
+  <main class="admin-login-container">
+    <div class="admin-login-card">
+      <div class="logo-container">
+        <img
+          src="/images/ogdrip_logo.webp"
+          alt="OG Drip Logo"
+          class="admin-logo"
+        />
+      </div>
+
+      <h1>Admin Login</h1>
+      <p class="subtitle">Please enter your admin token to continue</p>
+
+      {error && <div class="error-message">{error}</div>}
+
+      <form id="admin-login-form" class="login-form">
+        <div class="form-group">
+          <label for="admin-token">Admin Token</label>
+          <input
+            type="password"
+            id="admin-token"
+            name="admin-token"
+            placeholder="Enter your admin token"
+            required
+            autocomplete="off"
+          />
+        </div>
+
+        <input type="hidden" id="redirect-to" value={redirectTo} />
+
+        <button type="submit" class="login-button">Login</button>
+
+        <div class="form-footer">
+          <a href="/" class="back-link">← Back to Home</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Client-side JavaScript for form handling
+  document.addEventListener("DOMContentLoaded", () => {
+    const API_URL =
+      import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
+    const adminLoginForm = document.getElementById("admin-login-form");
+    const tokenInput = document.getElementById(
+      "admin-token"
+    ) as HTMLInputElement;
+    const redirectInput = document.getElementById(
+      "redirect-to"
+    ) as HTMLInputElement;
+
+    if (adminLoginForm) {
+      adminLoginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const token = tokenInput.value.trim();
+        const redirectTo = redirectInput?.value || "/history";
+
+        if (!token) {
+          showError("Please enter an admin token");
+          return;
+        }
+
+        try {
+          // Show loading state
+          setSubmitting(true);
+
+          // Verify the token with the backend
+          const response = await fetch(`${API_URL}/api/admin/verify`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            // Set cookie and redirect
+            setCookie("admin_token", token, 1); // Expires in 1 day
+            window.location.href = redirectTo;
+          } else {
+            // Invalid token
+            showError("Invalid admin token. Please try again.");
+          }
+        } catch (err) {
+          console.error("Error verifying admin token:", err);
+          showError("Error connecting to server. Please try again later.");
+        } finally {
+          setSubmitting(false);
+        }
+      });
+    }
+
+    // Utility functions
+    function showError(message: string | null) {
+      const errorEl = document.querySelector(".error-message") as HTMLElement;
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.style.display = "block";
+      } else if (adminLoginForm) {
+        // Create error element if it doesn't exist
+        const newErrorEl = document.createElement("div");
+        newErrorEl.className = "error-message";
+        newErrorEl.textContent = message;
+        adminLoginForm.insertBefore(newErrorEl, adminLoginForm.firstChild);
+      }
+    }
+
+    function setSubmitting(isSubmitting: boolean) {
+      if (!adminLoginForm) return;
+
+      const submitButton = adminLoginForm.querySelector(
+        "button[type='submit']"
+      ) as HTMLButtonElement;
+
+      if (submitButton) {
+        if (isSubmitting) {
+          submitButton.disabled = true;
+          submitButton.textContent = "Logging in...";
+        } else {
+          submitButton.disabled = false;
+          submitButton.textContent = "Login";
+        }
+      }
+    }
+
+    function setCookie(name: string, value: string, days: number) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie =
+        name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+    }
+  });
+</script>
+
+<style>
+  .admin-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+  }
+
+  .admin-login-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .logo-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-logo {
+    height: 80px;
+    width: auto;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    border-color: #4caf50;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  }
+
+  .login-button {
+    padding: 0.75rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+
+  .login-button:hover {
+    background-color: #3e8e41;
+  }
+
+  .login-button:disabled {
+    background-color: #8bc34a;
+    cursor: not-allowed;
+  }
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    display: none;
+  }
+
+  .form-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .back-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: #4caf50;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .admin-login-card {
+      padding: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,26 @@
+---
+import { BROWSER } from "esm-env";
+
+// This page doesn't render anything, it just performs the logout action and redirects
+if (!BROWSER) {
+  // Set an expired cookie to clear it
+  Astro.response.headers.append(
+    "Set-Cookie",
+    "admin_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax"
+  );
+
+  // Redirect to home page
+  return Astro.redirect("/");
+}
+---
+
+<meta http-equiv="refresh" content="0;url=/" />
+
+<script>
+  // Clear the cookie on the client side as well
+  document.cookie =
+    "admin_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+
+  // Redirect to home if not already redirected by server
+  window.location.href = "/";
+</script>
