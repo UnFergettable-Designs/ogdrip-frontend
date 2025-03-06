@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Run validation script with Node.js instead of Deno
-cd frontend && pnpm run validate
+# Run validation script through Turborepo
+cd $(git rev-parse --show-toplevel) && pnpm turbo run validate --filter=@ogdrip/frontend
