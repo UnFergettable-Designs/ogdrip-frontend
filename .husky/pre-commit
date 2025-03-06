@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-deno task validate
+# Run validation script with Node.js instead of Deno
+cd frontend && pnpm run validate
