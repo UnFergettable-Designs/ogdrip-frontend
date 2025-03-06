@@ -12,8 +12,7 @@ import Layout from "../layouts/Layout.astro";
 
 <script>
   // Get the backend URL from environment or use default
-  const API_URL =
-    import.meta.env?.PUBLIC_BACKEND_URL || "http://localhost:8888";
+  const API_URL = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
 
   document.addEventListener("DOMContentLoaded", () => {
     const testButton = document.getElementById("testApi");
