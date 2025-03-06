@@ -1,0 +1,164 @@
+---
+import { BROWSER } from "esm-env";
+
+// You can add more props as needed
+let logoSrc = "/images/ogdrip_logo.webp";
+let title = "OGDrip";
+
+// Check if admin authentication is enabled and available
+const adminAuthRequired =
+  import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true" || false;
+let isAdmin = false;
+
+// Get admin status from cookies
+if (!BROWSER) {
+  const cookies = Astro.request.headers.get("cookie") || "";
+  const adminToken = cookies
+    .split(";")
+    .find((c) => c.trim().startsWith("admin_token="));
+  isAdmin = adminAuthRequired && !!adminToken;
+}
+
+// Get current path for active link highlighting
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="logo-container">
+    <img src={logoSrc} alt="{title} logo" class="logo" />
+  </div>
+  <nav class="navigation">
+    <ul>
+      <li><a href="/" class={currentPath === "/" ? "active" : ""}>Home</a></li>
+      <li>
+        <a
+          href="/documentation"
+          class={currentPath === "/documentation" ? "active" : ""}
+          >Documentation</a
+        >
+      </li>
+      <li>
+        <a href="/history" class={currentPath === "/history" ? "active" : ""}
+          >History</a
+        >
+      </li>
+      {
+        isAdmin && (
+          <li class="admin-indicator">
+            <span class="admin-badge">Admin</span>
+            <button id="admin-logout" title="Logout">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          </li>
+        )
+      }
+    </ul>
+  </nav>
+</header>
+
+<script>
+  // Handle admin logout
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutButton = document.getElementById("admin-logout");
+
+    if (logoutButton) {
+      logoutButton.addEventListener("click", () => {
+        // Clear the admin token cookie
+        document.cookie =
+          "admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        // Redirect to home page
+        window.location.href = "/";
+      });
+    }
+  });
+</script>
+
+<style>
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .logo-container {
+    display: flex;
+    margin-right: 1rem;
+  }
+
+  .logo {
+    height: 10rem;
+    width: auto;
+  }
+
+  .navigation {
+    margin-left: auto;
+  }
+
+  .navigation ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .navigation li {
+    margin-left: 1.5rem;
+  }
+
+  .navigation a {
+    color: #4338ca;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .navigation a:hover {
+    text-decoration: underline;
+  }
+
+  .admin-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .admin-badge {
+    background-color: #4338ca;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+
+  #admin-logout {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #admin-logout:hover {
+    background-color: #fee2e2;
+    border-radius: 50%;
+  }
+</style>

@@ -1,0 +1,23 @@
+
+
+> @ogdrip/frontend@0.1.0 build /Users/johnferguson/Github/ogdrip/frontend
+> astro build
+
+[Sentry] Enabled source map generation in the build options with `vite.build.sourcemap: 'hidden'`. The source maps will be deleted after they were uploaded to Sentry.
+[Sentry] Automatically setting `sourceMapsUploadOptions.filesToDeleteAfterUpload: ["./dist/**/client/**/*.map","./dist/**/server/**/*.map"]` to delete generated source maps after they were uploaded to Sentry.
+[sentry-vite-plugin] Warning: No auth token provided. Will not create release. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[sentry-vite-plugin] Warning: No auth token provided. Will not upload source maps. Please set the `authToken` option. You can find information on how to generate a Sentry auth token here: https://docs.sentry.io/api/auth/
+[33m[1m08:03:15[22m [WARN] [router][39m The route "/docs/admin" is defined in both "src/pages/docs/admin/index.astro" and "src/pages/docs/admin.astro". A static route cannot be defined more than once.
+[33m[1m08:03:15[22m [WARN] [router][39m A collision will result in an hard error in following versions of Astro.
+[31m[NoAdapterInstalled][39m Cannot use server-rendered pages without an adapter. Please install and configure the appropriate server adapter for your final deployment.
+  [1mHint:[22m
+[33m    See [4mhttps://docs.astro.build/en/guides/on-demand-rendering/[24m for more information.[39m
+  [1mError reference:[22m
+    [36m[4mhttps://docs.astro.build/en/reference/errors/no-adapter-installed/[24m[39m
+  [1mLocation:[22m
+    [4m/Users/johnferguson/Github/ogdrip/node_modules/.pnpm/astro@5.4.1_@types+node@22.13.8_typescript@5.8.2/node_modules/astro/dist/core/build/index.js:81:13[24m
+  [1mStack trace:[22m
+[2m    at AstroBuilder.setup (file:///Users/johnferguson/Github/ogdrip/node_modules/.pnpm/astro@5.4.1_@types+node@22.13.8_typescript@5.8.2/node_modules/astro/dist/core/build/index.js:81:13)
+    at async build (file:///Users/johnferguson/Github/ogdrip/node_modules/.pnpm/astro@5.4.1_@types+node@22.13.8_typescript@5.8.2/node_modules/astro/dist/core/build/index.js:45:3)
+    at async runCommand (file:///Users/johnferguson/Github/ogdrip/node_modules/.pnpm/astro@5.4.1_@types+node@22.13.8_typescript@5.8.2/node_modules/astro/dist/cli/index.js:147:7)[22m
+[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 1.[39m

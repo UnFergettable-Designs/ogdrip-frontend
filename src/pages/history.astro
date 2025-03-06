@@ -1,0 +1,993 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { BROWSER } from "esm-env";
+
+// This data will be used for SSR
+let generations = [];
+let error = null;
+let totalCount = 0;
+let pageSize = 20;
+let currentPage = 1;
+let isAuthenticated = false;
+let adminAuthRequired = import.meta.env?.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+
+// Get API URL from environment variables
+const API_URL = import.meta.env?.PUBLIC_BACKEND_URL || "http://localhost:8888";
+
+// If we're in the server, fetch the generations
+if (!BROWSER) {
+  // Check authentication from cookies if admin auth is required
+  const cookies = Astro.request.headers.get('cookie') || '';
+  const adminToken = cookies.split(';').find(c => c.trim().startsWith('admin_token='));
+  
+  if (adminAuthRequired && !adminToken) {
+    // No authentication, will show login form
+    isAuthenticated = false;
+  } else {
+    isAuthenticated = !adminAuthRequired || !!adminToken;
+    
+    if (isAuthenticated) {
+      try {
+        // Extract token from cookie if admin auth is required
+        const token = adminAuthRequired ? adminToken?.split('=')[1].trim() : null;
+        const headers: RequestInit = {
+          headers: adminAuthRequired ? { 'Authorization': `Bearer ${token}` } : undefined
+        };
+        
+        const resp = await fetch(`${API_URL}/api/history?limit=${pageSize}`, headers);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.success) {
+            generations = data.data.generations || [];
+            totalCount = data.data.total || 0;
+          } else {
+            if (resp.status === 401) {
+              // Token is invalid
+              isAuthenticated = false;
+              error = "Admin authentication failed. Please log in again.";
+            } else {
+              error = data.message || "Failed to fetch history";
+            }
+          }
+        } else {
+          if (resp.status === 401) {
+            // Token is invalid
+            isAuthenticated = false;
+            error = "Admin authentication failed. Please log in again.";
+          } else {
+            error = `API error: ${resp.status} ${resp.statusText}`;
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching generations:", err);
+        error = err instanceof Error ? err.message : String(err);
+      }
+    }
+  }
+}
+---
+
+<Layout title="Generation History - Open Graph Generator">
+  <main>
+    <h1>Generation History</h1>
+    <p class="subtitle">View your recent Open Graph image generations</p>
+
+    {adminAuthRequired && !isAuthenticated && (
+      <div class="admin-login">
+        <h2>Admin Login Required</h2>
+        <p>This page is restricted to administrators only.</p>
+        
+        <form id="admin-login-form" class="login-form">
+          <div class="form-group">
+            <label for="admin-token">Admin Token</label>
+            <input type="password" id="admin-token" name="admin-token" required />
+          </div>
+          <button type="submit" class="login-button">Login</button>
+          <p id="login-error" class="error-text"></p>
+        </form>
+      </div>
+    )}
+
+    {(!adminAuthRequired || isAuthenticated) && (
+      <>
+        {error && (
+          <div class="error-message">
+            <p>Error: {error}</p>
+            <button id="retry-button">Retry</button>
+          </div>
+        )}
+
+        <div class="history-controls">
+          <div class="filter-controls">
+            <label for="status-filter">Filter by status:</label>
+            <select id="status-filter">
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+
+          <div class="sort-controls">
+            <label for="sort-order">Sort by:</label>
+            <select id="sort-order">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="generations-container" class="generations-grid">
+          {
+            generations.map(
+              (gen: {
+                id: unknown;
+                status: unknown;
+                image_path: any;
+                title: any;
+                description: any;
+                created_at: string | number | Date;
+              }) => (
+                <div
+                  class="generation-card"
+                  data-id={gen.id}
+                  data-status={gen.status}
+                >
+                  <div class="image-container">
+                    {gen.image_path && (
+                      <img
+                        src={`${API_URL}/api/download/${gen.id}/image`}
+                        alt={gen.title || "Generated Image"}
+                        loading="lazy"
+                      />
+                    )}
+                    {!gen.image_path && (
+                      <div class="no-image">No image available</div>
+                    )}
+                    <div class="status-badge status-{gen.status}">{gen.status}</div>
+                  </div>
+                  <div class="generation-details">
+                    <h3>{gen.title || "Untitled"}</h3>
+                    <p class="description">{gen.description || "No description"}</p>
+                    <p class="created-date">
+                      Created: {new Date(gen.created_at).toLocaleString()}
+                    </p>
+                    <div class="generation-actions">
+                      {gen.status === "completed" && (
+                        <a
+                          href={`${API_URL}/api/download/${gen.id}`}
+                          class="download-button"
+                        >
+                          Download
+                        </a>
+                      )}
+                      <button class="view-details-button" data-id={gen.id}>
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )
+            )
+          }
+        </div>
+
+        {
+          generations.length === 0 && !error && (
+            <div class="no-generations">
+              <p>
+                No generations found. Try generating some Open Graph images first!
+              </p>
+              <a href="/" class="button">
+                Go to Generator
+              </a>
+            </div>
+          )
+        }
+
+        <div class="pagination">
+          <button id="prev-page" disabled={currentPage <= 1}>Previous</button>
+          <span id="page-info"
+            >Page {currentPage} of {Math.ceil(totalCount / pageSize) || 1}</span
+          >
+          <button
+            id="next-page"
+            disabled={currentPage >= Math.ceil(totalCount / pageSize)}>Next</button
+          >
+        </div>
+
+        <!-- Modal for generation details -->
+        <div id="details-modal" class="modal">
+          <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Generation Details</h2>
+            <div id="modal-content">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+  </main>
+</Layout>
+
+<script>
+  // Client-side JavaScript to handle pagination, filtering, and details view
+  document.addEventListener("DOMContentLoaded", () => {
+    const API_URL =
+      import.meta.env?.PUBLIC_BACKEND_URL || "http://localhost:8888";
+    const adminAuthRequired = import.meta.env?.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+    const pageSize = 20;
+    let currentPage = 1;
+    let totalCount = parseInt(
+      document
+        .querySelector("#page-info")
+        ?.textContent?.split("of")[1]
+        ?.trim() || "0"
+    );
+    let currentFilter = "all";
+    let currentSort = "newest";
+    let adminToken = getCookie("admin_token") || "";
+
+    // Handle admin login form
+    const adminLoginForm = document.getElementById("admin-login-form");
+    if (adminLoginForm) {
+      adminLoginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const tokenInput = document.getElementById("admin-token") as HTMLInputElement;
+        const token = tokenInput.value.trim();
+        const loginError = document.getElementById("login-error");
+        
+        if (!token) {
+          if (loginError) loginError.textContent = "Please enter an admin token";
+          return;
+        }
+        
+        try {
+          // Verify the token with the backend
+          const response = await fetch(`${API_URL}/api/admin/verify`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            // Set cookie and reload page
+            setCookie("admin_token", token, 1); // Expires in 1 day
+            window.location.reload();
+          } else {
+            // Invalid token
+            if (loginError) loginError.textContent = "Invalid admin token";
+          }
+        } catch (err) {
+          console.error("Error verifying admin token:", err);
+          if (loginError) loginError.textContent = "Error connecting to server";
+        }
+      });
+    }
+    
+    const generationsContainer = document.getElementById(
+      "generations-container"
+    );
+    const prevButton = document.getElementById("prev-page");
+    const nextButton = document.getElementById("next-page");
+    const pageInfo = document.getElementById("page-info");
+    const statusFilter = document.getElementById("status-filter");
+    const sortOrder = document.getElementById("sort-order");
+    const detailsModal = document.getElementById("details-modal");
+    const closeButton = document.querySelector(".close-button");
+    const retryButton = document.getElementById("retry-button");
+
+    // Utility functions for cookies
+    function setCookie(name: string, value: string, days: number) {
+      let expires = "";
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+    
+    function getCookie(name: string) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for(let i=0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+
+    // Load generations from the API
+    async function loadGenerations() {
+      try {
+        const offset = (currentPage - 1) * pageSize;
+        const filterParam =
+          currentFilter !== "all" ? `&status=${currentFilter}` : "";
+        const sortParam = currentSort === "oldest" ? "&sort=asc" : "";
+        
+        // Include authorization header if admin auth is required
+        const headers = adminAuthRequired ? { 
+          'Authorization': `Bearer ${adminToken}`
+        } : {};
+
+        const response = await fetch(
+          `${API_URL}/api/history?limit=${pageSize}&offset=${offset}${filterParam}${sortParam}`,
+          { headers: headers as HeadersInit }
+        );
+
+        if (response.status === 401) {
+          // Authentication failed, redirect to login
+          setCookie("admin_token", "", -1); // Clear the cookie
+          window.location.reload();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            `API error: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.message || "Failed to fetch history");
+        }
+
+        renderGenerations(data.data.generations || []);
+        totalCount = data.data.total || 0;
+        updatePagination();
+      } catch (err) {
+        console.error("Error loading generations:", err);
+        if (generationsContainer && err instanceof Error) {
+          generationsContainer.innerHTML = `
+          <div class="error-message">
+            <p>Error: ${err.message}</p>
+          </div>
+
+        `;
+        }
+      }
+    }
+
+    // Render the generations to the DOM
+    function renderGenerations(generations: any[]) {
+      if (generations.length === 0) {
+        if (generationsContainer) {
+          generationsContainer.innerHTML = `
+          <div class="no-generations">
+            <p>No generations found. Try generating some Open Graph images first!</p>
+            <a href="/" class="button">Go to Generator</a>
+          </div>
+        `;
+        }
+        return;
+      }
+
+      if (generationsContainer) {
+        generationsContainer.innerHTML = generations
+          .map(
+            (gen) => `
+        <div class="generation-card" data-id="${gen.id}" data-status="${gen.status}">
+          <div class="image-container">
+            ${
+              gen.image_path
+                ? `<img src="${API_URL}/api/download/${gen.id}/image" alt="${gen.title || "Generated Image"}" loading="lazy">`
+                : `<div class="no-image">No image available</div>`
+            }
+            <div class="status-badge status-${gen.status}">${gen.status}</div>
+          </div>
+          <div class="generation-details">
+            <h3>${gen.title || "Untitled"}</h3>
+            <p class="description">${gen.description || "No description"}</p>
+            <p class="created-date">
+              Created: ${new Date(gen.created_at).toLocaleString()}
+            </p>
+            <div class="generation-actions">
+              ${
+                gen.status === "completed"
+                  ? `<a href="${API_URL}/api/download/${gen.id}" class="download-button">Download</a>`
+                  : ""
+              }
+              <button class="view-details-button" data-id="${gen.id}">
+                View Details
+              </button>
+            </div>
+          </div>
+        </div>
+      `
+          )
+          .join("");
+      }
+
+      // Re-attach event listeners
+      document.querySelectorAll(".view-details-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const btn = button as HTMLElement;
+          showDetails(btn.dataset.id);
+        });
+      });
+    }
+
+    // Update pagination controls
+    function updatePagination() {
+      const totalPages = Math.ceil(totalCount / pageSize) || 1;
+
+      if (pageInfo) {
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+      }
+
+      if (prevButton) {
+        (prevButton as HTMLButtonElement).disabled = currentPage <= 1;
+      }
+
+      if (nextButton) {
+        (nextButton as HTMLButtonElement).disabled = currentPage >= totalPages;
+      }
+    }
+
+    // Show generation details in modal
+    async function showDetails(id: string | undefined) {
+      try {
+        // Include authorization header if admin auth is required
+        const headers = adminAuthRequired ? { 
+          'Authorization': `Bearer ${adminToken}`
+        } : {};
+        
+        const response = await fetch(`${API_URL}/api/history/${id}`, { headers: headers as HeadersInit });
+
+        if (response.status === 401) {
+          // Authentication failed, redirect to login
+          setCookie("admin_token", "", -1); // Clear the cookie
+          window.location.reload();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            `API error: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.message || "Failed to fetch generation details");
+        }
+
+        const gen = data.data;
+        const modalContent = document.getElementById("modal-content");
+
+        // Parse parameters if available
+        let parameters = {};
+        try {
+          if (gen.parameters) {
+            parameters = JSON.parse(gen.parameters);
+          }
+        } catch (e) {
+          console.error("Error parsing parameters:", e);
+        }
+
+        if (modalContent) {
+          modalContent.innerHTML = `
+            <div class="details-grid">
+              <div class="details-image">
+              ${
+                gen.image_path
+                  ? `<img src="${API_URL}/api/download/${gen.id}/image" alt="${gen.title || "Generated Image"}">`
+                  : `<div class="no-image">No image available</div>`
+              }
+            </div>
+            <div class="details-info">
+              <h3>${gen.title || "Untitled"}</h3>
+              <p class="description">${gen.description || "No description"}</p>
+              <p><strong>Status:</strong> <span class="status-text status-${gen.status}">${gen.status}</span></p>
+              <p><strong>Created:</strong> ${new Date(gen.created_at).toLocaleString()}</p>
+              <p><strong>Target URL:</strong> <a href="${gen.target_url}" target="_blank">${gen.target_url}</a></p>
+              <p><strong>Downloads:</strong> ${gen.download_count}</p>
+              
+              ${
+                gen.error_message
+                  ? `<div class="error-box"><strong>Error:</strong> ${gen.error_message}</div>`
+                  : ""
+              }
+              
+              <h4>Generation Parameters</h4>
+              <div class="parameters">
+                <pre>${JSON.stringify(parameters, null, 2)}</pre>
+              </div>
+              
+              ${
+                gen.status === "completed"
+                  ? `<a href="${API_URL}/api/download/${gen.id}" class="download-button large">Download Files</a>`
+                  : ""
+              }
+            </div>
+          </div>
+        `;
+        }
+
+        if (detailsModal) {
+          detailsModal.style.display = "block";
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          console.error("Error fetching details:", err.message);
+          alert(`Error: ${err.message}`);
+        } else {
+          console.error("Error fetching details:", err);
+          alert("An unexpected error occurred");
+        }
+      }
+    }
+
+    // Event Listeners
+    if (prevButton) {
+      prevButton.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          loadGenerations();
+        }
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener("click", () => {
+        if (currentPage < Math.ceil(totalCount / pageSize)) {
+          currentPage++;
+          loadGenerations();
+        }
+      });
+    }
+
+    if (statusFilter) {
+      statusFilter.addEventListener("change", () => {
+        currentFilter = (statusFilter as HTMLSelectElement).value;
+        currentPage = 1;
+        loadGenerations();
+      });
+    }
+
+    if (sortOrder) {
+      sortOrder.addEventListener("change", () => {
+        currentSort = (sortOrder as HTMLSelectElement).value;
+        currentPage = 1;
+        loadGenerations();
+      });
+    }
+
+    if (closeButton) {
+      closeButton.addEventListener("click", () => {
+        if (detailsModal) {
+          detailsModal.style.display = "none";
+        }
+      });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener("click", (event) => {
+      if (event.target === detailsModal) {
+        if (detailsModal) {
+          detailsModal.style.display = "none";
+        }
+      }
+    });
+
+    if (retryButton) {
+      retryButton.addEventListener("click", loadGenerations);
+    }
+
+    // Initial load if no server-side data
+    if (generationsContainer && generationsContainer.children.length === 0 && !adminLoginForm) {
+      loadGenerations();
+    }
+  });
+</script>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  /* Admin Login Form Styles */
+  .admin-login {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .admin-login h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+
+  .login-form {
+    margin-top: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+
+  .login-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+
+  .login-button:hover {
+    background-color: #3e8e41;
+  }
+
+  .error-text {
+    color: #721c24;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .history-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-controls,
+  .sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  select {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+
+  .generations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .generation-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .generation-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .image-container {
+    position: relative;
+    height: 180px;
+    background-color: #f5f5f5;
+    overflow: hidden;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .no-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #999;
+  }
+
+  .status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .status-completed {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  .status-failed {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .generation-details {
+    padding: 1rem;
+  }
+
+  .generation-details h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .description {
+    color: #666;
+    font-size: 0.9rem;
+    height: 2.7rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin-bottom: 0.5rem;
+  }
+
+  .created-date {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 1rem;
+  }
+
+  .generation-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .download-button,
+  .view-details-button {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+
+  .download-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+  }
+
+  .download-button:hover {
+    background-color: #3e8e41;
+  }
+
+  .view-details-button {
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+
+  .view-details-button:hover {
+    background-color: #e7e7e7;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .pagination button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination button:hover:not(:disabled) {
+    background-color: #f0f0f0;
+  }
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .error-message button {
+    background-color: #721c24;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .no-generations {
+    text-align: center;
+    padding: 3rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+
+  .button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #4caf50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .button:hover {
+    background-color: #3e8e41;
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: auto;
+  }
+
+  .modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 900px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+  }
+
+  .close-button:hover {
+    color: #333;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .details-image {
+    overflow: hidden;
+    border-radius: 4px;
+    border: 1px solid #eee;
+  }
+
+  .details-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .details-info h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+  }
+
+  .parameters {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    overflow: auto;
+    max-height: 200px;
+  }
+
+  .parameters pre {
+    margin: 0;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+
+  .download-button.large {
+    display: block;
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .error-box {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+  }
+
+  .status-text {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+</style>

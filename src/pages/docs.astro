@@ -1,0 +1,325 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { BROWSER } from "esm-env";
+
+// Check if admin authentication is enabled and available
+const adminAuthRequired =
+  import.meta.env?.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
+let isAdmin = false;
+
+// Get admin status from cookies
+if (!BROWSER) {
+  const cookies = Astro.request.headers.get("cookie") || "";
+  const adminToken = cookies
+    .split(";")
+    .find((c) => c.trim().startsWith("admin_token="));
+  isAdmin = adminAuthRequired && !!adminToken;
+}
+
+// Page title and metadata
+const title = "Documentation - Open Graph Generator";
+
+// Redirect from old docs page to the new documentation structure
+return Astro.redirect("/documentation");
+---
+
+<Layout title={title}>
+  <main>
+    <h1>Documentation</h1>
+    <p class="subtitle">
+      Everything you need to know about the Open Graph Generator
+    </p>
+
+    <div class="docs-container">
+      <div class="docs-sidebar">
+        <nav>
+          <h3>Guides</h3>
+          <ul>
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li>
+              <a href="#generating-images">Generating Open Graph Images</a>
+            </li>
+            <li><a href="#using-meta-tags">Using Meta Tags</a></li>
+            <li><a href="#api-reference">API Reference</a></li>
+            {
+              isAdmin && (
+                <li class="admin-link">
+                  <a href="#admin-features">Admin Features</a>
+                </li>
+              )
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <div class="docs-content">
+        <section id="getting-started">
+          <h2>Getting Started</h2>
+          <p>
+            The Open Graph Generator helps you create beautiful images and meta
+            tags for social media sharing. Follow these steps to get started:
+          </p>
+          <ol>
+            <li>Enter your page title and description</li>
+            <li>Provide the URL you want to promote</li>
+            <li>Customize the appearance (optional)</li>
+            <li>Generate your Open Graph assets</li>
+            <li>Download and implement them on your website</li>
+          </ol>
+        </section>
+
+        <section id="generating-images">
+          <h2>Generating Open Graph Images</h2>
+          <p>
+            Open Graph images are shown when your content is shared on social
+            media platforms like Facebook, Twitter, and LinkedIn. Here's how to
+            create effective images:
+          </p>
+          <h3>Best Practices:</h3>
+          <ul>
+            <li>
+              Use a clear, concise title that accurately describes your content
+            </li>
+            <li>
+              Keep descriptions informative but brief (under 200 characters)
+            </li>
+            <li>Use high-quality images when possible</li>
+            <li>Follow the recommended dimensions for each platform</li>
+          </ul>
+        </section>
+
+        <section id="using-meta-tags">
+          <h2>Using Meta Tags</h2>
+          <p>
+            Meta tags tell social platforms how to display your content. After
+            generating your Open Graph assets, you'll need to add these tags to
+            the <code>&lt;head&gt;</code>
+            section of your HTML:
+          </p>
+          <pre><code>{`<meta property="og:title" content="Your Title" />
+<meta property="og:description" content="Your Description" />
+<meta property="og:image" content="https://example.com/your-image.jpg" />
+<meta property="og:url" content="https://example.com/your-page" />
+<meta property="og:type" content="website" />`}</code></pre>
+          <p>For Twitter, you might also want to include Twitter Card tags:</p>
+          <pre><code>{`<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Your Title" />
+<meta name="twitter:description" content="Your Description" />
+<meta name="twitter:image" content="https://example.com/your-image.jpg" />`}</code></pre>
+        </section>
+
+        <section id="api-reference">
+          <h2>API Reference</h2>
+          <p>
+            The Open Graph Generator provides a REST API for programmatic
+            access. Here are the available endpoints:
+          </p>
+          <h3>Generate Open Graph Assets</h3>
+          <pre><code>{`POST /api/generate
+Content-Type: application/json
+
+{
+  "title": "Your Page Title",
+  "description": "Your page description",
+  "target_url": "https://example.com",
+  "og_type": "website",
+  "site_name": "Your Site Name",
+  "image_width": 1200,
+  "image_height": 630
+}`}</code></pre>
+          <h3>Download Generated Assets</h3>
+          <pre><code>{`GET /api/download/:generationId`}</code></pre>
+          <p>
+            This endpoint returns a ZIP file containing the image, HTML file
+            with meta tags, and a preview of how it looks on social media.
+          </p>
+        </section>
+
+        {
+          isAdmin && (
+            <section id="admin-features">
+              <h2>Admin Features</h2>
+              <div class="admin-docs-card">
+                <h3>Admin Documentation</h3>
+                <p>
+                  As an administrator, you have access to additional features
+                  for managing and monitoring image generations.
+                </p>
+                <a href="/docs/admin" class="admin-docs-link">
+                  View Admin Documentation
+                </a>
+              </div>
+
+              <div class="admin-features-list">
+                <h3>Available Admin Features:</h3>
+                <ul>
+                  <li>View complete generation history</li>
+                  <li>Monitor successful and failed generations</li>
+                  <li>Access detailed generation data</li>
+                  <li>View usage statistics</li>
+                </ul>
+              </div>
+            </section>
+          )
+        }
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .docs-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .docs-container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .docs-sidebar {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+  }
+
+  .docs-sidebar h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: #444;
+  }
+
+  .docs-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .docs-sidebar li {
+    margin-bottom: 0.5rem;
+  }
+
+  .docs-sidebar a {
+    color: #4338ca;
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+
+  .docs-sidebar a:hover {
+    background-color: #f1f5f9;
+  }
+
+  .admin-link a {
+    color: #4338ca;
+    font-weight: 600;
+    border-left: 3px solid #4338ca;
+    background-color: rgba(67, 56, 202, 0.05);
+  }
+
+  .admin-link a:hover {
+    background-color: rgba(67, 56, 202, 0.1);
+  }
+
+  .docs-content section {
+    margin-bottom: 3rem;
+    max-width: 800px;
+  }
+
+  .docs-content h2 {
+    font-size: 1.8rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+  }
+
+  .docs-content h3 {
+    font-size: 1.3rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #334155;
+  }
+
+  .docs-content p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .docs-content ul,
+  .docs-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .docs-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+  }
+
+  code {
+    font-family:
+      "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9rem;
+  }
+
+  .admin-docs-card {
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #4338ca;
+  }
+
+  .admin-docs-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background-color: #4338ca;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .admin-docs-link:hover {
+    background-color: #3730a3;
+  }
+
+  .admin-features-list {
+    background-color: #fafafa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+</style>

@@ -1,0 +1,120 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="API Test - OG Drip">
+  <div class="api-test">
+    <h1>API Connection Test</h1>
+    <button id="testApi">Test Backend API</button>
+    <div id="results" class="results"></div>
+  </div>
+</Layout>
+
+<script>
+  // Get the backend URL from environment or use default
+  const API_URL =
+    import.meta.env?.PUBLIC_BACKEND_URL || "http://localhost:8888";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const testButton = document.getElementById("testApi");
+    const resultsElement = document.getElementById("results");
+
+    if (!testButton || !resultsElement) {
+      console.error("Required elements not found");
+      return;
+    }
+
+    testButton.addEventListener("click", async () => {
+      resultsElement.innerHTML = "Testing connection to backend...";
+
+      try {
+        const response = await fetch(`${API_URL}/api/health`);
+
+        if (response.ok) {
+          const data = await response.json();
+          resultsElement.innerHTML = `
+            <div class="success">
+              <p>✅ Successfully connected to backend!</p>
+              <p>Response: ${JSON.stringify(data)}</p>
+              <p>API URL: ${API_URL}</p>
+            </div>
+          `;
+          console.log("API response:", data);
+        } else {
+          resultsElement.innerHTML = `
+            <div class="error">
+              <p>❌ Error connecting to backend</p>
+              <p>Status: ${response.status} ${response.statusText}</p>
+              <p>API URL: ${API_URL}</p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        const error = err as Error;
+        resultsElement.innerHTML = `
+          <div class="error">
+            <p>❌ Failed to connect to backend</p>
+            <p>Error: ${error.message}</p>
+            <p>API URL: ${API_URL}</p>
+          </div>
+        `;
+        console.error("Error testing API:", error);
+      }
+    });
+  });
+</script>
+
+<style>
+  .api-test {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #333;
+  }
+
+  button {
+    margin: 1rem 0;
+    padding: 0.75rem 1.25rem;
+    background-color: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+
+  button:hover {
+    background-color: #3a5bd9;
+  }
+
+  .results {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+  }
+
+  .success {
+    color: #155724;
+    background-color: #d4edda;
+    border-radius: 4px;
+    padding: 0.75rem;
+  }
+
+  .error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-radius: 4px;
+    padding: 0.75rem;
+  }
+</style>

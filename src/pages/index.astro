@@ -1,0 +1,29 @@
+---
+import Layout from "../layouts/Layout.astro";
+import OpenGraphForm from "../components/OpenGraphForm.svelte";
+---
+
+<Layout title="ogdrip - Social presence that drips with style">
+  <h1 class="visually-hidden">OG Drip</h1>
+  <p class="subtitle">Social presence that drips with style</p>
+  <OpenGraphForm client:load target="body" />
+</Layout>
+
+<style>
+  /* Hide the title from screen readers */
+  .visually-hidden {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    font-weight: 250;
+    margin: 0;
+    text-align: center;
+  }
+</style>

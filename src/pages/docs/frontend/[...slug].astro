@@ -1,0 +1,151 @@
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const frontendEntries = await getCollection('frontend_docs');
+  return frontendEntries.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+<Layout title={entry.data.title}>
+  <main>
+    <div class="breadcrumbs">
+      <a href="/documentation">Documentation</a> &gt; <span>{entry.data.title}</span>
+    </div>
+
+    <article class="content">
+      <header>
+        <h1>{entry.data.title}</h1>
+        {entry.data.updated && (
+          <p class="updated">Updated: {entry.data.updated.toLocaleDateString()}</p>
+        )}
+      </header>
+      
+      <Content />
+
+      <footer>
+        <a href="/documentation" class="back-link">&larr; Back to Documentation</a>
+      </footer>
+    </article>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .breadcrumbs {
+    margin-bottom: 2rem;
+    color: #64748b;
+  }
+
+  .breadcrumbs a {
+    color: #3730a3;
+    text-decoration: none;
+  }
+
+  .breadcrumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .content {
+    line-height: 1.6;
+  }
+
+  header {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+
+  .updated {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #3730a3;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Documentation content styles */
+  :global(article h2) {
+    font-size: 1.8rem;
+    margin: 2rem 0 1rem;
+    color: #1e293b;
+  }
+
+  :global(article h3) {
+    font-size: 1.4rem;
+    margin: 1.5rem 0 0.75rem;
+    color: #334155;
+  }
+
+  :global(article p) {
+    margin-bottom: 1.25rem;
+  }
+
+  :global(article ul, article ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  :global(article li) {
+    margin-bottom: 0.5rem;
+  }
+
+  :global(article code) {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+
+  :global(article pre) {
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+  }
+
+  :global(article pre code) {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  :global(article blockquote) {
+    border-left: 4px solid #3730a3;
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-bottom: 1.5rem;
+    color: #475569;
+  }
+</style> 
