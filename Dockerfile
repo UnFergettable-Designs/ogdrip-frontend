@@ -8,11 +8,11 @@ FROM node:22-slim
 # Set the working directory
 WORKDIR /app
 
-# Install pnpm and serve for static file serving
+# Install pnpm globally
 RUN npm install -g pnpm serve
 
 # Copy package management files
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json ./
 
 # Install dependencies using pnpm
 RUN pnpm install
@@ -28,4 +28,4 @@ ENV ASTRO_TELEMETRY_DISABLED=1
 EXPOSE 3000
 
 # Start development server
-CMD ["pnpm", "run", "dev"] 
+CMD ["pnpm", "run", "dev"]

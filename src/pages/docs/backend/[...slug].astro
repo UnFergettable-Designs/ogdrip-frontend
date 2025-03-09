@@ -1,9 +1,11 @@
-import { getCollection } from 'astro:content';
-import Layout from '../../../layouts/Layout.astro';
+---
+export const prerender = true;
+import { getCollection } from "astro:content";
+import Layout from "../../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
-  const backendEntries = await getCollection('backend_docs');
-  return backendEntries.map(entry => ({
+  const backendEntries = await getCollection("backend_docs");
+  return backendEntries.map((entry) => ({
     params: { slug: entry.slug },
     props: { entry },
   }));
@@ -11,25 +13,34 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+---
 
 <Layout title={entry.data.title}>
   <main>
     <div class="breadcrumbs">
-      <a href="/documentation">Documentation</a> &gt; <span>{entry.data.title}</span>
+      <a href="/documentation">Documentation</a> &gt; <span
+        >{entry.data.title}</span
+      >
     </div>
 
     <article class="content">
       <header>
         <h1>{entry.data.title}</h1>
-        {entry.data.updated && (
-          <p class="updated">Updated: {entry.data.updated.toLocaleDateString()}</p>
-        )}
+        {
+          entry.data.updated && (
+            <p class="updated">
+              Updated: {entry.data.updated.toLocaleDateString()}
+            </p>
+          )
+        }
       </header>
-      
+
       <Content />
 
       <footer>
-        <a href="/documentation" class="back-link">&larr; Back to Documentation</a>
+        <a href="/documentation" class="back-link"
+          >&larr; Back to Documentation</a
+        >
       </footer>
     </article>
   </main>
@@ -120,7 +131,8 @@ const { Content } = await entry.render();
   }
 
   :global(article code) {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-family:
+      "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     background-color: #f1f5f9;
     padding: 0.2rem 0.4rem;
     border-radius: 0.25rem;
@@ -148,4 +160,4 @@ const { Content } = await entry.render();
     margin-bottom: 1.5rem;
     color: #475569;
   }
-</style> 
+</style>

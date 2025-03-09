@@ -12,11 +12,24 @@ let isAdmin = false;
 
 // Get admin status from cookies
 if (!BROWSER) {
-  const cookies = Astro.request.headers.get("cookie") || "";
-  const adminToken = cookies
-    .split(";")
-    .find((c) => c.trim().startsWith("admin_token="));
-  isAdmin = adminAuthRequired && !!adminToken;
+  try {
+    // Check if we're in a build context to avoid errors during static build
+    const isBuildTime =
+      import.meta.env.MODE === "production" ||
+      process.env.NODE_ENV === "production";
+
+    if (!isBuildTime) {
+      const cookies = Astro.request.headers.get("cookie") || "";
+      const adminToken = cookies
+        .split(";")
+        .find((c) => c.trim().startsWith("admin_token="));
+      isAdmin = adminAuthRequired && !!adminToken;
+    }
+  } catch (e) {
+    console.warn("Error accessing request headers:", e);
+    // Default to non-admin in case of error
+    isAdmin = false;
+  }
 }
 
 // Get current path for active link highlighting

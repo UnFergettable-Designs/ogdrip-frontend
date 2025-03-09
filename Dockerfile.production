@@ -1,55 +1,58 @@
 FROM node:22-slim AS builder
-
 # Set the working directory
 WORKDIR /app
 
 # Install pnpm
 RUN npm install -g pnpm
 
-# Create necessary directories
-RUN mkdir -p src/utils public/images src/content
-
-# Copy key configuration files first
+# Copy workspace configuration first
+COPY pnpm-workspace.yaml ./
 COPY package.json pnpm-lock.yaml* ./
-COPY tsconfig.json ./
-COPY svelte.config.js ./
-COPY astro.config.mjs ./
 
-# Copy source files
-COPY src src/
-COPY public public/
+# Copy shared package
+COPY shared/ ./shared/
 
-# Install dependencies using pnpm
+# Copy frontend package
+COPY frontend/package.json frontend/
+COPY frontend/tsconfig.json frontend/
+COPY frontend/svelte.config.js frontend/
+COPY frontend/astro.config.mjs frontend/
+
+# Install dependencies at workspace root
 RUN pnpm install
 
-# Build the application
+# Copy frontend source files
+COPY frontend/src frontend/src/
+COPY frontend/public frontend/public/
+
+# Build the frontend
+WORKDIR /app/frontend
 ENV NODE_ENV=production
 ENV ASTRO_TELEMETRY_DISABLED=1
 RUN pnpm run build
 
-# Production image with minimal dependencies
+# Production image
 FROM node:22-slim
-
 WORKDIR /app
 
 # Install serve globally for static file serving
 RUN npm install -g serve
 
 # Copy only the built static files
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/frontend/dist ./dist
 
-# Create necessary directories for volumes if they don't exist
+# Create necessary directories for volumes
 RUN mkdir -p /app/dist/outputs
 RUN mkdir -p /app/dist/images
 
-# Set the environment variables
+# Set environment variables
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV ASTRO_TELEMETRY_DISABLED=1
 
-# Expose the port
+# Expose port
 EXPOSE 3000
 
 # Serve static files
-CMD ["serve", "-s", "dist", "-l", "3000"] 
+CMD ["serve", "-s", "dist", "-l", "3000"]

@@ -17,6 +17,7 @@
     "validate": "node ./scripts/validate-imports.js"
   },
   "dependencies": {
+    "@astrojs/node": "^9.1.2",
     "@astrojs/svelte": "^7.0.5",
     "@sentry/astro": "^9.4.0",
     "@sentry/browser": "^9.4.0",

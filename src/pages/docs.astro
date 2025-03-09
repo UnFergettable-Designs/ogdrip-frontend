@@ -6,13 +6,26 @@ import { BROWSER } from "esm-env";
 const adminAuthRequired = import.meta.env.PUBLIC_ADMIN_AUTH_REQUIRED === "true";
 let isAdmin = false;
 
-// Get admin status from cookies
-if (!BROWSER) {
-  const cookies = Astro.request.headers.get("cookie") || "";
-  const adminToken = cookies
-    .split(";")
-    .find((c) => c.trim().startsWith("admin_token="));
-  isAdmin = adminAuthRequired && !!adminToken;
+try {
+  // Get admin status from cookies
+  if (!BROWSER) {
+    // Check if we're in a build context to avoid errors during static build
+    const isBuildTime =
+      import.meta.env.MODE === "production" ||
+      process.env.NODE_ENV === "production";
+
+    if (!isBuildTime) {
+      const cookies = Astro.request.headers.get("cookie") || "";
+      const adminToken = cookies
+        .split(";")
+        .find((c) => c.trim().startsWith("admin_token="));
+      isAdmin = adminAuthRequired && !!adminToken;
+    }
+  }
+} catch (e) {
+  console.warn("Error accessing request headers:", e);
+  // Default to non-admin in case of error
+  isAdmin = false;
 }
 
 // Page title and metadata
@@ -20,6 +33,9 @@ const title = "Documentation - Open Graph Generator";
 
 // Redirect from old docs page to the new documentation structure
 return Astro.redirect("/documentation");
+
+// Add prerender: false to ensure server-side rendering
+export const prerender = false;
 ---
 
 <Layout title={title}>

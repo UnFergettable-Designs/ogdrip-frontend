@@ -16,68 +16,88 @@ const API_URL = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:8888";
 
 // If we're in the server, fetch the generations
 if (!BROWSER) {
-  // Check authentication from cookies if admin auth is required
-  const cookies = Astro.request.headers.get("cookie") || "";
-  const adminToken = cookies
-    .split(";")
-    .find((c) => c.trim().startsWith("admin_token="));
+  try {
+    // During build time, we shouldn't try to connect to the backend
+    // as it might not be running. We'll handle this gracefully.
+    const isBuildTime =
+      import.meta.env.MODE === "production" ||
+      process.env.NODE_ENV === "production";
 
-  if (adminAuthRequired && !adminToken) {
-    // No authentication, redirect to login page
-    return Astro.redirect(
-      `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
-    );
-  } else {
-    isAuthenticated = !adminAuthRequired || !!adminToken;
+    if (!isBuildTime) {
+      // Check authentication from cookies if admin auth is required
+      const cookies = Astro.request.headers.get("cookie") || "";
+      const adminToken = cookies
+        .split(";")
+        .find((c) => c.trim().startsWith("admin_token="));
 
-    if (isAuthenticated) {
-      try {
-        // Extract token from cookie if admin auth is required
-        const token = adminAuthRequired
-          ? adminToken?.split("=")[1].trim()
-          : null;
-        const headers: RequestInit = {
-          headers: adminAuthRequired
-            ? { Authorization: `Bearer ${token}` }
-            : undefined,
-        };
-
-        const resp = await fetch(
-          `${API_URL}/api/history?limit=${pageSize}`,
-          headers
+      if (adminAuthRequired && !adminToken) {
+        // No authentication, redirect to login page
+        return Astro.redirect(
+          `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
         );
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data.success) {
-            generations = data.data.generations || [];
-            totalCount = data.data.total || 0;
-          } else {
-            if (resp.status === 401) {
-              // Token is invalid, redirect to login
-              return Astro.redirect(
-                `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
-              );
-            } else {
-              error = data.message || "Failed to fetch history";
-            }
-          }
-        } else {
-          if (resp.status === 401) {
-            // Token is invalid, redirect to login
-            return Astro.redirect(
-              `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
+      } else {
+        isAuthenticated = !adminAuthRequired || !!adminToken;
+
+        if (isAuthenticated) {
+          try {
+            // Extract token from cookie if admin auth is required
+            const token = adminAuthRequired
+              ? adminToken?.split("=")[1].trim()
+              : null;
+            const headers: RequestInit = {
+              headers: adminAuthRequired
+                ? { Authorization: `Bearer ${token}` }
+                : undefined,
+            };
+
+            const resp = await fetch(
+              `${API_URL}/api/history?limit=${pageSize}`,
+              headers
             );
-          } else {
-            error = `API error: ${resp.status} ${resp.statusText}`;
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data.success) {
+                generations = data.data.generations || [];
+                totalCount = data.data.total || 0;
+              } else {
+                if (resp.status === 401) {
+                  // Token is invalid, redirect to login
+                  return Astro.redirect(
+                    `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
+                  );
+                } else {
+                  error = data.message || "Failed to fetch history";
+                }
+              }
+            } else {
+              if (resp.status === 401) {
+                // Token is invalid, redirect to login
+                return Astro.redirect(
+                  `/admin/login?redirect=${encodeURIComponent(Astro.url.pathname)}`
+                );
+              } else {
+                error = `API error: ${resp.status} ${resp.statusText}`;
+              }
+            }
+          } catch (err) {
+            console.error("Error fetching generations:", err);
+            error = err instanceof Error ? err.message : String(err);
           }
         }
-      } catch (err) {
-        console.error("Error fetching generations:", err);
-        error = err instanceof Error ? err.message : String(err);
       }
+    } else {
+      // In build mode, just provide empty data, client-side JS will handle the fetching
+      console.log("Running in build mode, skipping backend API calls");
     }
+  } catch (e) {
+    // Fallback for any errors during build
+    console.warn("Error during SSR rendering:", e);
+    // Leave the generations array empty, client-side JS will handle the fetching
   }
 }
+
+// We need to add prerender: false to enable server-side rendering for this page
+export const prerender = false;
 ---
 
 <Layout title="Generation History - Open Graph Generator">

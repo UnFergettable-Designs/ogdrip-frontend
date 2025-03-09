@@ -3,8 +3,8 @@ import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 import { fileURLToPath } from 'url';
 import path from 'path';
-
 import sentry from '@sentry/astro';
+import node from '@astrojs/node';
 
 // Get dirname in ESM
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,19 +15,26 @@ const BACKEND_URL = process.env.PUBLIC_BACKEND_URL || process.env.BACKEND_URL ||
 
 // https://astro.build/config
 export default defineConfig({
-  // Use static mode for static site generation
-  output: 'static',
+  // Use server mode to support server-side rendering
+  output: 'server',
   // Server config for development only
   server: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT || '3000', 10),
   },
-  integrations: [svelte(), sentry({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.SENTRY_ENVIRONMENT,
-    release: process.env.SENTRY_RELEASE,
-    authToken: process.env.SENTRY_AUTH_TOKEN
-  })],
+  integrations: [
+    svelte(), 
+    sentry({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.SENTRY_ENVIRONMENT,
+      release: process.env.SENTRY_RELEASE,
+      authToken: process.env.SENTRY_AUTH_TOKEN
+    })
+  ],
+  // Add Node.js adapter for server-side rendering
+  adapter: node({
+    mode: 'standalone'
+  }),
   vite: {
     define: {
       // Define PUBLIC_BACKEND_URL for client-side code
