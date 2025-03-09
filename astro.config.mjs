@@ -17,13 +17,15 @@ const BACKEND_URL = process.env.PUBLIC_BACKEND_URL || process.env.BACKEND_URL ||
 export default defineConfig({
   // Use server mode to support server-side rendering
   output: 'server',
+
   // Server config for development only
   server: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT || '3000', 10),
   },
+
   integrations: [
-    svelte(), 
+    svelte(),
     sentry({
       dsn: process.env.SENTRY_DSN,
       environment: process.env.SENTRY_ENVIRONMENT,
@@ -31,10 +33,12 @@ export default defineConfig({
       authToken: process.env.SENTRY_AUTH_TOKEN
     })
   ],
-  // Add Node.js adapter for server-side rendering
+
+  // Add Node.js adapter for server-side rendering with prerendering support
   adapter: node({
     mode: 'standalone'
   }),
+
   vite: {
     define: {
       // Define PUBLIC_BACKEND_URL for client-side code
@@ -49,21 +53,47 @@ export default defineConfig({
     },
     // Optimize build for production
     build: {
-      // Generate sourcemaps for debugging
-      sourcemap: process.env.NODE_ENV === 'production' ? false : 'inline',
-      // Minify in production
-      minify: process.env.NODE_ENV === 'production',
-      // Improve chunk size
-      chunkSizeWarningLimit: 1000,
+      // Disable sourcemaps in production
+      sourcemap: false,
+      // Enable minification
+      minify: true,
+      // Use terser for better minification
+      minifier: 'terser',
+      // Improve chunk size warnings
+      chunkSizeWarningLimit: 2000,
+      // Split chunks more aggressively
+      assetsInlineLimit: 4096,
       rollupOptions: {
         output: {
-          // Optimize bundle size
+          // Optimize code splitting
           manualChunks: {
             svelte: ['svelte'],
-            vendor: ['path', 'url']
-          }
+            vendor: ['path', 'url'],
+            // Split large UI components
+            components: [
+              './src/components/OpenGraphForm.svelte'
+            ]
+          },
+          // Limit chunk size
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]'
         }
+      },
+      // Enable build cache
+      cache: true,
+      // Reduce memory usage during build
+      target: 'esnext',
+      modulePreload: {
+        polyfill: false
       }
+    },
+    // Optimize dependency optimization
+    optimizeDeps: {
+      // Force-include problematic dependencies
+      include: ['svelte', 'esm-env'],
+      // Disable dependency optimization in production
+      disabled: process.env.NODE_ENV === 'production'
     }
   }
 });
