@@ -1,0 +1,23 @@
+FROM --platform=linux/amd64 node:20-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy pre-built app and minimal package.json
+COPY dist/ ./
+
+# Install production dependencies
+RUN npm install --omit=dev
+
+# Create outputs directory
+RUN mkdir -p /app/outputs
+
+# Set environment variables
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the server
+CMD ["node", "./server/entry.mjs"]

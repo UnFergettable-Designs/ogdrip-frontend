@@ -1,0 +1,23 @@
+FROM --platform=linux/amd64 node:20-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy pre-built app
+COPY dist/ ./
+
+# Install required dependencies
+RUN npm install --no-save @sentry/astro@9.5.0 @sentry/browser@9.5.0 clsx@2.1.1 cookie@0.6.0 mime@4.0.1
+
+# Create outputs directory
+RUN mkdir -p /app/outputs
+
+# Set environment variables
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the server
+CMD ["node", "./server/entry.mjs"]

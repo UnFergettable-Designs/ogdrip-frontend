@@ -1,5 +1,1 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-# Run validation script through Turborepo
-cd $(git rev-parse --show-toplevel) && pnpm turbo run validate --filter=@ogdrip/frontend
+pnpm test

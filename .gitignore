@@ -1,5 +1,5 @@
 # build output
-dist/
+# dist/ - Commented out to allow dist folder to be committed
 # generated types
 .astro/
 
