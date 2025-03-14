@@ -1,5 +1,5 @@
 ;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="4b2d932a-0344-47ac-9754-cafd478c25da",e._sentryDebugIdIdentifier="sentry-dbid-4b2d932a-0344-47ac-9754-cafd478c25da")}catch(e){}}();import { j as joinPaths, i as isRemotePath } from './path-crb-TXLx.js';
-import { A as AstroError, ah as ExpectedImage, ai as LocalImageUsedWrongly, aj as MissingImageDimension, ak as UnsupportedImageFormat, al as IncompatibleDescriptorOptions, am as UnsupportedImageConversion, an as toStyleString, ao as NoImageMetadata, ap as FailedToFetchRemoteImageDimensions, aq as ExpectedImageOptions, ar as ExpectedNotESMImage, as as InvalidImageService, c as createComponent, a as createAstro, at as ImageMissingAlt, m as maybeRenderHead, e as addAttribute, au as spreadAttributes, d as renderTemplate } from './astro/server-DWSwO9et.js';
+import { A as AstroError, ah as ExpectedImage, ai as LocalImageUsedWrongly, aj as MissingImageDimension, ak as UnsupportedImageFormat, al as IncompatibleDescriptorOptions, am as UnsupportedImageConversion, an as toStyleString, ao as NoImageMetadata, ap as FailedToFetchRemoteImageDimensions, aq as ExpectedImageOptions, ar as ExpectedNotESMImage, as as InvalidImageService, c as createComponent, a as createAstro, at as ImageMissingAlt, m as maybeRenderHead, e as addAttribute, au as spreadAttributes, d as renderTemplate } from './astro/server-Dn10uLf2.js';
 import { D as DEFAULT_OUTPUT_FORMAT, a as VALID_SUPPORTED_FORMATS, b as DEFAULT_HASH_PROPS } from './consts--MdcYzfL.js';
 import 'clsx';
 
@@ -1239,7 +1239,7 @@ async function getConfiguredImageService() {
   if (!globalThis?.astroAsset?.imageService) {
     const { default: service } = await import(
       // @ts-expect-error
-      './sharp-C9KCrtnA.js'
+      './sharp-CsAJGz09.js'
     ).catch((e) => {
       const error = new AstroError(InvalidImageService);
       error.cause = e;

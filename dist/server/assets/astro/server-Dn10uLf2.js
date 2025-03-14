@@ -1,4 +1,4 @@
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="8dde8939-2822-4622-bd93-d9ae95b9eb5e",e._sentryDebugIdIdentifier="sentry-dbid-8dde8939-2822-4622-bd93-d9ae95b9eb5e")}catch(e){}}();import { clsx } from 'clsx';
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="55b330d6-3449-48a1-a9de-d80f5e15c597",e._sentryDebugIdIdentifier="sentry-dbid-55b330d6-3449-48a1-a9de-d80f5e15c597")}catch(e){}}();import { clsx } from 'clsx';
 
 const ASTRO_VERSION = "5.4.3";
 const REROUTE_DIRECTIVE_HEADER = "X-Astro-Reroute";
@@ -2843,7 +2843,7 @@ var _global =
               self :
               {};
 
-    _global.SENTRY_RELEASE={id:"acb661f8540a49ed1bf553393cf4aaed86a9c312"};
+    _global.SENTRY_RELEASE={id:"81ea06a375826e05e879f57c6dc19f540760123e"};
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
