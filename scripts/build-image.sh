@@ -11,41 +11,48 @@ cd "$FRONTEND_DIR"
 echo "Running from $(pwd)"
 
 echo "=== Building frontend locally with SSR ==="
-# Install dependencies
+# Install dependencies from the root directory
+cd "$ROOT_DIR"
 pnpm install
 
 # Build the frontend with the default config (SSR mode)
+cd "$FRONTEND_DIR"
 NODE_ENV=production pnpm build
 
 echo "=== Creating Node.js image with pre-built SSR app ==="
-# Create a minimal package.json for the container with required dependencies
+# Create a temporary package.json for the container with minimal info
 cat > dist/package.json << EOL
 {
   "name": "ogdrip-frontend-container",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@sentry/astro": "9.5.0",
+    "@sentry/browser": "9.5.0",
+    "clsx": "2.1.1",
+    "cookie": "0.6.0",
+    "mime": "4.0.1"
+  }
 }
 EOL
 
 # Create a temporary Dockerfile for the pre-built SSR app
 cat > Dockerfile.prebuilt << EOL
-FROM --platform=linux/amd64 node:20-alpine
+# Use Node.js for the SSR application
+FROM --platform=linux/amd64 node:22-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy pre-built app
+# Copy pre-built app with the minimal package.json
 COPY dist/ ./
 
-# Install required dependencies with limited memory usage
-RUN apk add --no-cache --virtual .build-deps curl \
-    && npm install --no-save --no-audit --no-fund --prefer-offline \
-       @sentry/astro@9.5.0 @sentry/browser@9.5.0 clsx@2.1.1 cookie@0.6.0 mime@4.0.1 \
-    && apk del .build-deps \
-    && npm cache clean --force
+# Install only the required dependencies
+RUN npm install --production
 
-# Create outputs directory
+# Create directories for mounted volumes
 RUN mkdir -p /app/outputs
+RUN mkdir -p /app/images
 
 # Set environment variables
 ENV HOST=0.0.0.0
@@ -59,7 +66,7 @@ EXPOSE 3000
 CMD ["node", "./server/entry.mjs"]
 EOL
 
-# Build the Docker image
+# Build the Docker image from the frontend directory
 nerdctl build -f Dockerfile.prebuilt -t ogdrip-frontend:prebuilt .
 
 echo "=== Pre-built frontend image created: ogdrip-frontend:prebuilt ==="

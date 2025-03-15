@@ -1,20 +1,23 @@
-FROM --platform=linux/amd64 node:20-slim
+# Use Node.js for the SSR application
+FROM --platform=linux/amd64 node:22-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy pre-built app
+# Copy pre-built app with the minimal package.json
 COPY dist/ ./
 
-# Install required dependencies
-RUN npm install --no-save @sentry/astro@9.5.0 @sentry/browser@9.5.0 clsx@2.1.1 cookie@0.6.0 mime@4.0.1
+# Install only the required dependencies
+RUN npm install --production
 
-# Create outputs directory
+# Create directories for mounted volumes
 RUN mkdir -p /app/outputs
+RUN mkdir -p /app/images
 
 # Set environment variables
 ENV HOST=0.0.0.0
 ENV PORT=3000
+ENV NODE_ENV=production
 
 # Expose the port the app runs on
 EXPOSE 3000
