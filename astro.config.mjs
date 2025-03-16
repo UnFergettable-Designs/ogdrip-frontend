@@ -46,8 +46,6 @@ export default defineConfig({
       'import.meta.env.PUBLIC_BACKEND_URL': JSON.stringify(BACKEND_URL),
     },
 
-    // Remove custom aliasing for esm-env
-
     // Optimize build for production
     build: {
       // Disable sourcemaps in production
@@ -88,9 +86,6 @@ export default defineConfig({
     optimizeDeps: {
       // Only include necessary dependencies
       include: ['svelte'],
-      // Disable dependency optimization in production
-      // Note: This setting is deprecated in Vite 5.1+, will be removed later
-      disabled: process.env.NODE_ENV === 'production',
     },
   },
 });
