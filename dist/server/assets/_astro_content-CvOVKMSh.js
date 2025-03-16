@@ -1,4 +1,4 @@
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="0fae4005-68a0-4eaf-8075-f5648caca2a9",e._sentryDebugIdIdentifier="sentry-dbid-0fae4005-68a0-4eaf-8075-f5648caca2a9")}catch(e){}}();import { A as AstroError, U as UnknownContentCollectionError, c as createComponent, R as RenderUndefinedEntryError, u as unescapeHTML, d as renderTemplate, f as escape, g as renderUniqueStylesheet, h as renderScriptElement, i as createHeadAndContent, r as renderComponent } from './astro/server-C1gvCaV3.js';
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="0fae4005-68a0-4eaf-8075-f5648caca2a9",e._sentryDebugIdIdentifier="sentry-dbid-0fae4005-68a0-4eaf-8075-f5648caca2a9")}catch(e){}}();import { A as AstroError, U as UnknownContentCollectionError, c as createComponent, R as RenderUndefinedEntryError, u as unescapeHTML, d as renderTemplate, f as escape, g as renderUniqueStylesheet, h as renderScriptElement, i as createHeadAndContent, r as renderComponent } from './astro/server-natjiicX.js';
 import pLimit from 'p-limit';
 import { r as removeBase, i as isRemotePath, p as prependForwardSlash } from './path-crb-TXLx.js';
 import { V as VALID_INPUT_FORMATS } from './consts--MdcYzfL.js';
@@ -4528,7 +4528,7 @@ function createGetCollection({
     } else if (collection in dataCollectionToEntryMap) {
       type = "data";
     } else if (store.hasCollection(collection)) {
-      const { default: imageAssetMap } = await import('./content-assets-CRZoblyI.js');
+      const { default: imageAssetMap } = await import('./content-assets-DIRRt9Bj.js');
       const result = [];
       for (const rawEntry of store.values(collection)) {
         const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
@@ -4610,9 +4610,9 @@ function emulateLegacyEntry({ legacyId, ...entry }) {
 }
 const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html, fileName) {
-  const { default: imageAssetMap } = await import('./content-assets-CRZoblyI.js');
+  const { default: imageAssetMap } = await import('./content-assets-DIRRt9Bj.js');
   const imageObjects = /* @__PURE__ */ new Map();
-  const { getImage } = await import('./_astro_assets-fKILR4uO.js').then(n => n._);
+  const { getImage } = await import('./_astro_assets-WG78NfYA.js').then(n => n._);
   for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
     try {
       const decodedImagePath = JSON.parse(imagePath.replaceAll("&#x22;", '"'));
@@ -4672,7 +4672,7 @@ async function renderEntry(entry) {
   }
   if (entry.deferredRender) {
     try {
-      const { default: contentModules } = await import('./content-modules-CuL5CIVg.js');
+      const { default: contentModules } = await import('./content-modules-8RZU4FFV.js');
       const renderEntryImport = contentModules.get(entry.filePath);
       return render({
         collection: "",
