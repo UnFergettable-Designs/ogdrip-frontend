@@ -1,2 +1,3 @@
 # Keep the standard gitignore but allow dist for Coolify deployment
-!dist/
+dist/
+node_modules/
