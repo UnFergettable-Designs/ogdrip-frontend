@@ -5,146 +5,199 @@ order: 4
 updated: 2023-05-30
 ---
 
-# Deployment Guide
+# Backend Deployment Guide
 
-This guide explains how to deploy the Open Graph Generator to production environments.
+This guide covers deploying the Open Graph Generator backend service using Nixpacks.
 
-## Deployment Options
+## Prerequisites
 
-The Open Graph Generator supports several deployment options:
+- Go 1.24 or later
+- SQLite 3.x
+- Chromium/Chrome
+- Git
 
-1. **Docker-based deployment**: Using Docker Compose for containerized deployment
-2. **Manual deployment**: Building and running the services directly on a server
-3. **Cloud deployment**: Using cloud services like AWS, GCP, or Azure
+## Deployment Methods
 
-## Docker-based Deployment
+The backend can be deployed using Nixpacks, which handles all dependencies and build steps
+automatically.
 
-The simplest deployment method is using Docker Compose with the production configuration.
+### Nixpacks Deployment
 
-### Prerequisites
-
-- Docker and Docker Compose installed on the server
-- Git for cloning the repository
-- A domain name (optional, but recommended)
-- SSL certificate for HTTPS (optional, but recommended)
-
-### Deployment Steps
-
-1. Clone the repository on your server:
+1. Install Nixpacks:
 
    ```bash
-   git clone https://github.com/yourusername/ogdrip.git
-   cd ogdrip
+   curl -sSL https://nixpacks.com/install.sh | bash
    ```
 
-2. Create a `.env` file for production:
+2. Build the application:
 
    ```bash
-   cp frontend/.env.example frontend/.env
+   nixpacks build . --name ogdrip
    ```
 
-3. Edit the `.env` file with your production settings:
+3. Set up environment variables:
 
-   ```
-   BACKEND_URL=https://your-domain.com
-   PUBLIC_BACKEND_URL=https://your-domain.com
-   PUBLIC_ADMIN_AUTH_REQUIRED=true
-   ```
-
-4. Set the backend environment variables by creating a `.env` file in the root directory:
-
-   ```
-   ADMIN_TOKEN=your-secure-admin-token
+   ```bash
+   # Required variables
+   PORT=8888
    BASE_URL=https://your-domain.com
+   OUTPUT_DIR=/app/outputs
+   ENABLE_CORS=true
+   MAX_QUEUE_SIZE=10
+   CHROME_PATH=/usr/bin/chromium
+
+   # Optional variables
+   SENTRY_DSN=your-sentry-dsn
+   ADMIN_TOKEN=your-secure-admin-token
    ```
 
-5. Deploy the application using Docker Compose:
+4. Start the service:
+   ```bash
+   ./start.sh
+   ```
+
+## Environment Configuration
+
+### Required Variables
+
+- `PORT`: Service port (default: 8888)
+- `BASE_URL`: Public URL for the service
+- `OUTPUT_DIR`: Directory for generated images
+- `ENABLE_CORS`: Enable CORS support
+- `MAX_QUEUE_SIZE`: Maximum concurrent generations
+- `CHROME_PATH`: Path to Chrome/Chromium binary
+
+### Optional Variables
+
+- `SENTRY_DSN`: Sentry error tracking
+- `ADMIN_TOKEN`: Admin API access token
+- `LOG_LEVEL`: Logging verbosity
+- `DATABASE_PATH`: Custom SQLite path
+
+## File System Structure
+
+```
+/app/
+├── backend/           # Backend service files
+│   ├── build/        # Compiled binaries
+│   └── data/         # SQLite database
+├── outputs/          # Generated images
+└── logs/            # Service logs
+```
+
+## Health Checks
+
+The service provides health check endpoints:
+
+1. Basic health: `GET /api/health`
 
    ```bash
-   docker compose -f docker-compose.production.yml up -d
+   curl https://your-domain.com/api/health
    ```
 
-6. Configure a reverse proxy (like Nginx or Traefik) to handle HTTPS and route traffic to the appropriate container.
-
-## Manual Deployment
-
-For servers without Docker, you can deploy the services manually.
-
-### Backend Deployment
-
-1. Install Go on your server (version 1.19 or higher)
-2. Clone the repository
-3. Navigate to the backend directory:
+2. Admin verification: `GET /api/admin/verify`
    ```bash
-   cd backend
+   curl -H "Authorization: Bearer $ADMIN_TOKEN" \
+        https://your-domain.com/api/admin/verify
    ```
-4. Build the backend:
+
+## Monitoring
+
+1. Application Logs
+
+   - Standard output logging
+   - Structured JSON format
+   - Configurable log levels
+
+2. Error Tracking
+
+   - Sentry integration (if configured)
+   - Error aggregation and alerts
+   - Performance monitoring
+
+3. Metrics
+   - Request latency
+   - Queue size
+   - Error rates
+   - Disk usage
+
+## Backup and Recovery
+
+1. Database Backup
+
    ```bash
-   go build -o ogdrip-backend .
+   cp /app/data/ogdrip.db /backup/ogdrip-$(date +%Y%m%d).db
    ```
-5. Run the backend:
+
+2. Image Backup
+
    ```bash
-   ./ogdrip-backend
+   tar -czf /backup/images-$(date +%Y%m%d).tar.gz /app/outputs
    ```
 
-### Frontend Deployment
+3. Recovery
 
-1. Install Node.js (version 18 or higher) and pnpm
-2. Navigate to the frontend directory:
    ```bash
-   cd frontend
-   ```
-3. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-4. Build the frontend:
-   ```bash
-   pnpm run build
-   ```
-5. Run the production server:
-   ```bash
-   node dist/server/entry.mjs
+   # Restore database
+   cp /backup/ogdrip-20240316.db /app/data/ogdrip.db
+
+   # Restore images
+   tar -xzf /backup/images-20240316.tar.gz -C /app/outputs
    ```
 
-## Environment Variables
+## Security
 
-### Critical Environment Variables
+1. Network Security
 
-| Variable                     | Service  | Description                              |
-| ---------------------------- | -------- | ---------------------------------------- |
-| `BACKEND_URL`                | Frontend | URL to the backend API (internal)        |
-| `PUBLIC_BACKEND_URL`         | Frontend | URL to the backend API (public-facing)   |
-| `PUBLIC_ADMIN_AUTH_REQUIRED` | Frontend | Whether admin authentication is required |
-| `ADMIN_TOKEN`                | Backend  | Token for admin authentication           |
-| `BASE_URL`                   | Backend  | Base URL for generated asset links       |
+   - Use HTTPS in production
+   - Configure proper CORS settings
+   - Set secure HTTP headers
 
-### Optional Environment Variables
+2. Access Control
 
-| Variable           | Service  | Description                                                         |
-| ------------------ | -------- | ------------------------------------------------------------------- |
-| `PORT`             | Both     | Port for the service (default: 3000 for frontend, 8080 for backend) |
-| `NODE_ENV`         | Frontend | Node.js environment                                                 |
-| `SENTRY_DSN`       | Both     | Sentry DSN for error tracking                                       |
-| `CLEANUP_INTERVAL` | Backend  | Interval for cleaning up old files (default: 24h)                   |
+   - Use strong ADMIN_TOKEN
+   - Implement rate limiting
+   - Monitor access logs
 
-## Health Monitoring
+3. File System
+   - Secure file permissions
+   - Regular cleanup of old files
+   - Monitor disk usage
 
-The application provides health check endpoints:
+## Troubleshooting
 
-- Frontend: `/health`
-- Backend: `/api/health`
+1. Service Won't Start
 
-You can use these with monitoring tools to check the health of your deployment.
+   - Check port availability
+   - Verify environment variables
+   - Check log files
 
-## Backup and Maintenance
+2. Image Generation Fails
 
-1. **Database Backups**: The SQLite database is stored at `/app/outputs/og-generator.db`. Back up this file regularly.
+   - Verify Chrome/Chromium installation
+   - Check OUTPUT_DIR permissions
+   - Monitor Chrome process
 
-2. **Generated Files**: All generated files are stored in the `/app/outputs` directory. Ensure you have enough disk space.
+3. Performance Issues
+   - Check MAX_QUEUE_SIZE setting
+   - Monitor system resources
+   - Review database indexes
 
-3. **Updates**: To update the application:
-   ```bash
-   git pull
-   docker compose -f docker-compose.production.yml up -d --build
-   ```
+## Maintenance
+
+1. Regular Tasks
+
+   - Update Go dependencies
+   - Clean old images
+   - Backup database
+
+2. Updates
+
+   - Pull latest code
+   - Run database migrations
+   - Test before deploying
+
+3. Monitoring
+   - Check error rates
+   - Monitor disk space
+   - Review access logs
