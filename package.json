@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev --host",
     "dev:frontend": "astro dev --host",
-    "start": "astro dev --host",
+    "start": "NODE_ENV=production HOST=0.0.0.0 PORT=${PORT:-3000} node ./dist/server/entry.mjs",
     "build": "astro build",
     "preview": "astro preview --host",
     "lint": "astro check && eslint . --ext .js,.ts,.astro",
