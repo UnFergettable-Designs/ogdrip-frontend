@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.4.3"><title>Deployment Guide</title><script>
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.5.2"><title>Deployment Guide</title><script>
   document.addEventListener('DOMContentLoaded', () => {
     const logoImg = document.getElementById('ogdrip-logo');
     logoImg.onerror = function() { 
@@ -6,177 +6,211 @@
     };
   });
 </script><style>main[data-astro-cid-3xjdol5s]{max-width:900px;margin:0 auto;padding:2rem}.breadcrumbs[data-astro-cid-3xjdol5s]{margin-bottom:2rem;color:#64748b}.breadcrumbs[data-astro-cid-3xjdol5s] a[data-astro-cid-3xjdol5s]{color:#3730a3;text-decoration:none}.breadcrumbs[data-astro-cid-3xjdol5s] a[data-astro-cid-3xjdol5s]:hover{text-decoration:underline}.content[data-astro-cid-3xjdol5s]{line-height:1.6}header[data-astro-cid-3xjdol5s]{margin-bottom:2rem}h1[data-astro-cid-3xjdol5s]{font-size:2.5rem;color:#1e293b;margin-bottom:.5rem}.updated[data-astro-cid-3xjdol5s]{color:#64748b;font-size:.9rem;margin-top:.5rem}footer[data-astro-cid-3xjdol5s]{margin-top:3rem;padding-top:1rem;border-top:1px solid #e2e8f0}.back-link[data-astro-cid-3xjdol5s]{display:inline-block;color:#3730a3;text-decoration:none;font-weight:500}.back-link[data-astro-cid-3xjdol5s]:hover{text-decoration:underline}article h2{font-size:1.8rem;margin:2rem 0 1rem;color:#1e293b}article h3{font-size:1.4rem;margin:1.5rem 0 .75rem;color:#334155}article p{margin-bottom:1.25rem}article ul,article ol{margin-bottom:1.5rem;padding-left:1.5rem}article li{margin-bottom:.5rem}article code{font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;background-color:#f1f5f9;padding:.2rem .4rem;border-radius:.25rem;font-size:.9em}article pre{background-color:#f8fafc;padding:1rem;border-radius:.5rem;overflow-x:auto;border:1px solid #e2e8f0;margin-bottom:1.5rem}article pre code{background-color:transparent;padding:0}article blockquote{border-left:4px solid #3730a3;padding-left:1rem;margin-left:0;margin-bottom:1.5rem;color:#475569}
-.header[data-astro-cid-3ef6ksr2]{display:flex;align-items:center;padding:1rem;background-color:#f8f9fa;border-bottom:1px solid #e9ecef}.logo-container[data-astro-cid-3ef6ksr2]{display:flex;margin-right:1rem}.logo[data-astro-cid-3ef6ksr2]{height:10rem;width:auto}.navigation[data-astro-cid-3ef6ksr2]{margin-left:auto}.navigation[data-astro-cid-3ef6ksr2] ul[data-astro-cid-3ef6ksr2]{display:flex;list-style:none;margin:0;padding:0}.navigation[data-astro-cid-3ef6ksr2] li[data-astro-cid-3ef6ksr2]{margin-left:1.5rem}.navigation[data-astro-cid-3ef6ksr2] a[data-astro-cid-3ef6ksr2]{color:#4338ca;text-decoration:none;font-weight:500}.navigation[data-astro-cid-3ef6ksr2] a[data-astro-cid-3ef6ksr2]:hover{text-decoration:underline}.admin-indicator[data-astro-cid-3ef6ksr2]{display:flex;align-items:center;gap:.5rem}.admin-badge[data-astro-cid-3ef6ksr2]{background-color:#4338ca;color:#fff;font-size:.75rem;padding:.25rem .5rem;border-radius:4px;font-weight:700}#admin-logout[data-astro-cid-3ef6ksr2]{background:none;border:none;color:#dc2626;cursor:pointer;padding:.25rem;display:flex;align-items:center;justify-content:center}#admin-logout[data-astro-cid-3ef6ksr2]:hover{background-color:#fee2e2;border-radius:50%}
-:root{--primary-color: #4f46e5;--primary-hover: #4338ca;--text-color: #333;--light-gray: #eee;--medium-gray: #ddd;--dark-gray: #666;--error-bg: #fee2e2;--error-text: #dc2626;--container-width: 900px}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:var(--text-color);background-color:#f6f6f6;margin:0;padding:0;line-height:1.5}.container{max-width:var(--container-width);margin:0 auto;padding:2rem 1rem}header{text-align:center;margin-bottom:2rem}.logo-container{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;margin-bottom:.5rem}.logo{width:25rem;height:auto}header h1{font-size:2.5rem;font-weight:800;margin:0}header p{color:var(--dark-gray);font-size:1.2rem;margin-top:.5rem}footer{margin-top:3rem;text-align:center;color:var(--dark-gray);font-size:.9rem}
-</style><script type="module" src="/assets/page-BfsQj8iW.js"></script></head> <body> <div class="container"> <header class="header" data-astro-cid-3ef6ksr2> <div class="logo-container" data-astro-cid-3ef6ksr2> <img src="/images/ogdrip_logo.webp" alt="{title} logo" class="logo" data-astro-cid-3ef6ksr2> </div> <nav class="navigation" data-astro-cid-3ef6ksr2> <ul data-astro-cid-3ef6ksr2> <li data-astro-cid-3ef6ksr2><a href="/" class data-astro-cid-3ef6ksr2>Home</a></li> <li data-astro-cid-3ef6ksr2> <a href="/documentation" class data-astro-cid-3ef6ksr2>Documentation</a> </li> <li data-astro-cid-3ef6ksr2> <a href="/history" class data-astro-cid-3ef6ksr2>History</a> </li>  </ul> </nav> </header> <script type="module">(function(){try{var e=typeof window<"u"?window:typeof global<"u"?global:typeof globalThis<"u"?globalThis:typeof self<"u"?self:{},d=new e.Error().stack;d&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[d]="6596b387-0a8d-4cb7-91c7-cddcf8e2e45c",e._sentryDebugIdIdentifier="sentry-dbid-6596b387-0a8d-4cb7-91c7-cddcf8e2e45c")}catch{}})();document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("admin-logout");e&&e.addEventListener("click",()=>{document.cookie="admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;",window.location.href="/"})});</script>  <main>  <main data-astro-cid-3xjdol5s> <div class="breadcrumbs" data-astro-cid-3xjdol5s> <a href="/documentation" data-astro-cid-3xjdol5s>Documentation</a> &gt; <span data-astro-cid-3xjdol5s>Deployment Guide</span> </div> <article class="content" data-astro-cid-3xjdol5s> <header data-astro-cid-3xjdol5s> <h1 data-astro-cid-3xjdol5s>Deployment Guide</h1> <p class="updated" data-astro-cid-3xjdol5s>
-Updated: 5/29/2023 </p> </header> <h1 id="deployment-guide">Deployment Guide</h1>
-<p>This guide explains how to deploy the Open Graph Generator to production environments.</p>
-<h2 id="deployment-options">Deployment Options</h2>
-<p>The Open Graph Generator supports several deployment options:</p>
-<ol>
-<li><strong>Docker-based deployment</strong>: Using Docker Compose for containerized deployment</li>
-<li><strong>Manual deployment</strong>: Building and running the services directly on a server</li>
-<li><strong>Cloud deployment</strong>: Using cloud services like AWS, GCP, or Azure</li>
-</ol>
-<h2 id="docker-based-deployment">Docker-based Deployment</h2>
-<p>The simplest deployment method is using Docker Compose with the production configuration.</p>
-<h3 id="prerequisites">Prerequisites</h3>
+.header[data-astro-cid-3ef6ksr2]{display:flex;align-items:center;padding:1rem;background-color:#f8f9fa;border-bottom:1px solid #e9ecef}.logo-container[data-astro-cid-3ef6ksr2]{display:flex;margin-right:1rem}.logo[data-astro-cid-3ef6ksr2]{height:10rem;width:auto}.navigation[data-astro-cid-3ef6ksr2]{margin-left:auto}.navigation[data-astro-cid-3ef6ksr2] ul[data-astro-cid-3ef6ksr2]{display:flex;list-style:none;margin:0;padding:0}.navigation[data-astro-cid-3ef6ksr2] li[data-astro-cid-3ef6ksr2]{margin-left:1.5rem}.navigation[data-astro-cid-3ef6ksr2] a[data-astro-cid-3ef6ksr2]{color:#4338ca;text-decoration:none;font-weight:500}.navigation[data-astro-cid-3ef6ksr2] a[data-astro-cid-3ef6ksr2]:hover{text-decoration:underline}.admin-indicator[data-astro-cid-3ef6ksr2]{display:flex;align-items:center;gap:.5rem}.admin-badge[data-astro-cid-3ef6ksr2]{background-color:#4338ca;color:#fff;font-size:.75rem;padding:.25rem .5rem;border-radius:4px;font-weight:700}#admin-logout[data-astro-cid-3ef6ksr2]{background:none;border:none;color:#dc2626;cursor:pointer;padding:.25rem;display:flex;align-items:center;justify-content:center}#admin-logout[data-astro-cid-3ef6ksr2]:hover{background-color:#fee2e2;border-radius:50%}:root{--primary-color: #4f46e5;--primary-hover: #4338ca;--text-color: #333;--light-gray: #eee;--medium-gray: #ddd;--dark-gray: #666;--error-bg: #fee2e2;--error-text: #dc2626;--container-width: 900px}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:var(--text-color);background-color:#f6f6f6;margin:0;padding:0;line-height:1.5}.container{max-width:var(--container-width);margin:0 auto;padding:2rem 1rem}header{text-align:center;margin-bottom:2rem}.logo-container{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;margin-bottom:.5rem}.logo{width:25rem;height:auto}header h1{font-size:2.5rem;font-weight:800;margin:0}header p{color:var(--dark-gray);font-size:1.2rem;margin-top:.5rem}footer{margin-top:3rem;text-align:center;color:var(--dark-gray);font-size:.9rem}
+</style><script type="module" src="/assets/page-csVRZc4x.js"></script></head> <body> <div class="container"> <header class="header" data-astro-cid-3ef6ksr2> <div class="logo-container" data-astro-cid-3ef6ksr2> <img src="/images/ogdrip_logo.webp" alt="{title} logo" class="logo" data-astro-cid-3ef6ksr2> </div> <nav class="navigation" data-astro-cid-3ef6ksr2> <ul data-astro-cid-3ef6ksr2> <li data-astro-cid-3ef6ksr2><a href="/" class data-astro-cid-3ef6ksr2>Home</a></li> <li data-astro-cid-3ef6ksr2> <a href="/documentation" class data-astro-cid-3ef6ksr2>Documentation</a> </li> <li data-astro-cid-3ef6ksr2> <a href="/history" class data-astro-cid-3ef6ksr2>History</a> </li>  </ul> </nav> </header> <script type="module">(function(){try{var e=typeof window<"u"?window:typeof global<"u"?global:typeof globalThis<"u"?globalThis:typeof self<"u"?self:{},d=new e.Error().stack;d&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[d]="6596b387-0a8d-4cb7-91c7-cddcf8e2e45c",e._sentryDebugIdIdentifier="sentry-dbid-6596b387-0a8d-4cb7-91c7-cddcf8e2e45c")}catch{}})();document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("admin-logout");e&&e.addEventListener("click",()=>{document.cookie="admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;",window.location.href="/"})});</script>  <main>  <main data-astro-cid-3xjdol5s> <div class="breadcrumbs" data-astro-cid-3xjdol5s> <a href="/documentation" data-astro-cid-3xjdol5s>Documentation</a> &gt; <span data-astro-cid-3xjdol5s>Deployment Guide</span> </div> <article class="content" data-astro-cid-3xjdol5s> <header data-astro-cid-3xjdol5s> <h1 data-astro-cid-3xjdol5s>Deployment Guide</h1> <p class="updated" data-astro-cid-3xjdol5s>
+Updated: 5/29/2023 </p> </header> <h1 id="backend-deployment-guide">Backend Deployment Guide</h1>
+<p>This guide covers deploying the Open Graph Generator backend service using Nixpacks.</p>
+<h2 id="prerequisites">Prerequisites</h2>
 <ul>
-<li>Docker and Docker Compose installed on the server</li>
-<li>Git for cloning the repository</li>
-<li>A domain name (optional, but recommended)</li>
-<li>SSL certificate for HTTPS (optional, but recommended)</li>
+<li>Go 1.24 or later</li>
+<li>SQLite 3.x</li>
+<li>Chromium/Chrome</li>
+<li>Git</li>
 </ul>
-<h3 id="deployment-steps">Deployment Steps</h3>
+<h2 id="deployment-methods">Deployment Methods</h2>
+<p>The backend can be deployed using Nixpacks, which handles all dependencies and build steps
+automatically.</p>
+<h3 id="nixpacks-deployment">Nixpacks Deployment</h3>
 <ol>
 <li>
-<p>Clone the repository on your server:</p>
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> clone</span><span style="color:#9ECBFF"> https://github.com/yourusername/ogdrip.git</span></span>
-<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> ogdrip</span></span></code></pre>
+<p>Install Nixpacks:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#79B8FF"> -sSL</span><span style="color:#9ECBFF"> https://nixpacks.com/install.sh</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> bash</span></span></code></pre>
 </li>
 <li>
-<p>Create a <code>.env</code> file for production:</p>
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">cp</span><span style="color:#9ECBFF"> frontend/.env.example</span><span style="color:#9ECBFF"> frontend/.env</span></span></code></pre>
+<p>Build the application:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">nixpacks</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> .</span><span style="color:#79B8FF"> --name</span><span style="color:#9ECBFF"> ogdrip</span></span></code></pre>
 </li>
 <li>
-<p>Edit the <code>.env</code> file with your production settings:</p>
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>BACKEND_URL=https://your-domain.com</span></span>
-<span class="line"><span>PUBLIC_BACKEND_URL=https://your-domain.com</span></span>
-<span class="line"><span>PUBLIC_ADMIN_AUTH_REQUIRED=true</span></span></code></pre>
+<p>Set up environment variables:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Required variables</span></span>
+<span class="line"><span style="color:#E1E4E8">PORT</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">8888</span></span>
+<span class="line"><span style="color:#E1E4E8">BASE_URL</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">https://your-domain.com</span></span>
+<span class="line"><span style="color:#E1E4E8">OUTPUT_DIR</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/app/outputs</span></span>
+<span class="line"><span style="color:#E1E4E8">ENABLE_CORS</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">MAX_QUEUE_SIZE</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">10</span></span>
+<span class="line"><span style="color:#E1E4E8">CHROME_PATH</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/usr/bin/chromium</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Optional variables</span></span>
+<span class="line"><span style="color:#E1E4E8">SENTRY_DSN</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">your-sentry-dsn</span></span>
+<span class="line"><span style="color:#E1E4E8">ADMIN_TOKEN</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">your-secure-admin-token</span></span></code></pre>
 </li>
 <li>
-<p>Set the backend environment variables by creating a <code>.env</code> file in the root directory:</p>
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>ADMIN_TOKEN=your-secure-admin-token</span></span>
-<span class="line"><span>BASE_URL=https://your-domain.com</span></span></code></pre>
-</li>
-<li>
-<p>Deploy the application using Docker Compose:</p>
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> compose</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> docker-compose.production.yml</span><span style="color:#9ECBFF"> up</span><span style="color:#79B8FF"> -d</span></span></code></pre>
-</li>
-<li>
-<p>Configure a reverse proxy (like Nginx or Traefik) to handle HTTPS and route traffic to the appropriate container.</p>
+<p>Start the service:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">./start.sh</span></span></code></pre>
 </li>
 </ol>
-<h2 id="manual-deployment">Manual Deployment</h2>
-<p>For servers without Docker, you can deploy the services manually.</p>
-<h3 id="backend-deployment">Backend Deployment</h3>
-<ol>
-<li>Install Go on your server (version 1.19 or higher)</li>
-<li>Clone the repository</li>
-<li>Navigate to the backend directory:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> backend</span></span></code></pre>
-</li>
-<li>Build the backend:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -o</span><span style="color:#9ECBFF"> ogdrip-backend</span><span style="color:#9ECBFF"> .</span></span></code></pre>
-</li>
-<li>Run the backend:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">./ogdrip-backend</span></span></code></pre>
-</li>
-</ol>
-<h3 id="frontend-deployment">Frontend Deployment</h3>
-<ol>
-<li>Install Node.js (version 18 or higher) and pnpm</li>
-<li>Navigate to the frontend directory:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> frontend</span></span></code></pre>
-</li>
-<li>Install dependencies:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">pnpm</span><span style="color:#9ECBFF"> install</span></span></code></pre>
-</li>
-<li>Build the frontend:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">pnpm</span><span style="color:#9ECBFF"> run</span><span style="color:#9ECBFF"> build</span></span></code></pre>
-</li>
-<li>Run the production server:
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">node</span><span style="color:#9ECBFF"> dist/server/entry.mjs</span></span></code></pre>
-</li>
-</ol>
-<h2 id="environment-variables">Environment Variables</h2>
-<h3 id="critical-environment-variables">Critical Environment Variables</h3>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<table><thead><tr><th>Variable</th><th>Service</th><th>Description</th></tr></thead><tbody><tr><td><code>BACKEND_URL</code></td><td>Frontend</td><td>URL to the backend API (internal)</td></tr><tr><td><code>PUBLIC_BACKEND_URL</code></td><td>Frontend</td><td>URL to the backend API (public-facing)</td></tr><tr><td><code>PUBLIC_ADMIN_AUTH_REQUIRED</code></td><td>Frontend</td><td>Whether admin authentication is required</td></tr><tr><td><code>ADMIN_TOKEN</code></td><td>Backend</td><td>Token for admin authentication</td></tr><tr><td><code>BASE_URL</code></td><td>Backend</td><td>Base URL for generated asset links</td></tr></tbody></table>
-<h3 id="optional-environment-variables">Optional Environment Variables</h3>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<table><thead><tr><th>Variable</th><th>Service</th><th>Description</th></tr></thead><tbody><tr><td><code>PORT</code></td><td>Both</td><td>Port for the service (default: 3000 for frontend, 8080 for backend)</td></tr><tr><td><code>NODE_ENV</code></td><td>Frontend</td><td>Node.js environment</td></tr><tr><td><code>SENTRY_DSN</code></td><td>Both</td><td>Sentry DSN for error tracking</td></tr><tr><td><code>CLEANUP_INTERVAL</code></td><td>Backend</td><td>Interval for cleaning up old files (default: 24h)</td></tr></tbody></table>
-<h2 id="health-monitoring">Health Monitoring</h2>
-<p>The application provides health check endpoints:</p>
+<h2 id="environment-configuration">Environment Configuration</h2>
+<h3 id="required-variables">Required Variables</h3>
 <ul>
-<li>Frontend: <code>/health</code></li>
-<li>Backend: <code>/api/health</code></li>
+<li><code>PORT</code>: Service port (default: 8888)</li>
+<li><code>BASE_URL</code>: Public URL for the service</li>
+<li><code>OUTPUT_DIR</code>: Directory for generated images</li>
+<li><code>ENABLE_CORS</code>: Enable CORS support</li>
+<li><code>MAX_QUEUE_SIZE</code>: Maximum concurrent generations</li>
+<li><code>CHROME_PATH</code>: Path to Chrome/Chromium binary</li>
 </ul>
-<p>You can use these with monitoring tools to check the health of your deployment.</p>
-<h2 id="backup-and-maintenance">Backup and Maintenance</h2>
+<h3 id="optional-variables">Optional Variables</h3>
+<ul>
+<li><code>SENTRY_DSN</code>: Sentry error tracking</li>
+<li><code>ADMIN_TOKEN</code>: Admin API access token</li>
+<li><code>LOG_LEVEL</code>: Logging verbosity</li>
+<li><code>DATABASE_PATH</code>: Custom SQLite path</li>
+</ul>
+<h2 id="file-system-structure">File System Structure</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/app/</span></span>
+<span class="line"><span>├── backend/           # Backend service files</span></span>
+<span class="line"><span>│   ├── build/        # Compiled binaries</span></span>
+<span class="line"><span>│   └── data/         # SQLite database</span></span>
+<span class="line"><span>├── outputs/          # Generated images</span></span>
+<span class="line"><span>└── logs/            # Service logs</span></span></code></pre>
+<h2 id="health-checks">Health Checks</h2>
+<p>The service provides health check endpoints:</p>
 <ol>
 <li>
-<p><strong>Database Backups</strong>: The SQLite database is stored at <code>/app/outputs/og-generator.db</code>. Back up this file regularly.</p>
+<p>Basic health: <code>GET /api/health</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#9ECBFF"> https://your-domain.com/api/health</span></span></code></pre>
 </li>
 <li>
-<p><strong>Generated Files</strong>: All generated files are stored in the <code>/app/outputs</code> directory. Ensure you have enough disk space.</p>
+<p>Admin verification: <code>GET /api/admin/verify</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">curl</span><span style="color:#79B8FF"> -H</span><span style="color:#9ECBFF"> "Authorization: Bearer </span><span style="color:#E1E4E8">$ADMIN_TOKEN</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#9ECBFF">     https://your-domain.com/api/admin/verify</span></span></code></pre>
+</li>
+</ol>
+<h2 id="monitoring">Monitoring</h2>
+<ol>
+<li>
+<p>Application Logs</p>
+<ul>
+<li>Standard output logging</li>
+<li>Structured JSON format</li>
+<li>Configurable log levels</li>
+</ul>
 </li>
 <li>
-<p><strong>Updates</strong>: To update the application:</p>
-<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> pull</span></span>
-<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> compose</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> docker-compose.production.yml</span><span style="color:#9ECBFF"> up</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> --build</span></span></code></pre>
+<p>Error Tracking</p>
+<ul>
+<li>Sentry integration (if configured)</li>
+<li>Error aggregation and alerts</li>
+<li>Performance monitoring</li>
+</ul>
+</li>
+<li>
+<p>Metrics</p>
+<ul>
+<li>Request latency</li>
+<li>Queue size</li>
+<li>Error rates</li>
+<li>Disk usage</li>
+</ul>
+</li>
+</ol>
+<h2 id="backup-and-recovery">Backup and Recovery</h2>
+<ol>
+<li>
+<p>Database Backup</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">cp</span><span style="color:#9ECBFF"> /app/data/ogdrip.db</span><span style="color:#9ECBFF"> /backup/ogdrip-</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">date</span><span style="color:#9ECBFF"> +%Y%m%d</span><span style="color:#E1E4E8">)</span><span style="color:#9ECBFF">.db</span></span></code></pre>
+</li>
+<li>
+<p>Image Backup</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">tar</span><span style="color:#79B8FF"> -czf</span><span style="color:#9ECBFF"> /backup/images-</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">date</span><span style="color:#9ECBFF"> +%Y%m%d</span><span style="color:#E1E4E8">)</span><span style="color:#9ECBFF">.tar.gz</span><span style="color:#9ECBFF"> /app/outputs</span></span></code></pre>
+</li>
+<li>
+<p>Recovery</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Restore database</span></span>
+<span class="line"><span style="color:#B392F0">cp</span><span style="color:#9ECBFF"> /backup/ogdrip-20240316.db</span><span style="color:#9ECBFF"> /app/data/ogdrip.db</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Restore images</span></span>
+<span class="line"><span style="color:#B392F0">tar</span><span style="color:#79B8FF"> -xzf</span><span style="color:#9ECBFF"> /backup/images-20240316.tar.gz</span><span style="color:#79B8FF"> -C</span><span style="color:#9ECBFF"> /app/outputs</span></span></code></pre>
+</li>
+</ol>
+<h2 id="security">Security</h2>
+<ol>
+<li>
+<p>Network Security</p>
+<ul>
+<li>Use HTTPS in production</li>
+<li>Configure proper CORS settings</li>
+<li>Set secure HTTP headers</li>
+</ul>
+</li>
+<li>
+<p>Access Control</p>
+<ul>
+<li>Use strong ADMIN_TOKEN</li>
+<li>Implement rate limiting</li>
+<li>Monitor access logs</li>
+</ul>
+</li>
+<li>
+<p>File System</p>
+<ul>
+<li>Secure file permissions</li>
+<li>Regular cleanup of old files</li>
+<li>Monitor disk usage</li>
+</ul>
+</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<ol>
+<li>
+<p>Service Won’t Start</p>
+<ul>
+<li>Check port availability</li>
+<li>Verify environment variables</li>
+<li>Check log files</li>
+</ul>
+</li>
+<li>
+<p>Image Generation Fails</p>
+<ul>
+<li>Verify Chrome/Chromium installation</li>
+<li>Check OUTPUT_DIR permissions</li>
+<li>Monitor Chrome process</li>
+</ul>
+</li>
+<li>
+<p>Performance Issues</p>
+<ul>
+<li>Check MAX_QUEUE_SIZE setting</li>
+<li>Monitor system resources</li>
+<li>Review database indexes</li>
+</ul>
+</li>
+</ol>
+<h2 id="maintenance">Maintenance</h2>
+<ol>
+<li>
+<p>Regular Tasks</p>
+<ul>
+<li>Update Go dependencies</li>
+<li>Clean old images</li>
+<li>Backup database</li>
+</ul>
+</li>
+<li>
+<p>Updates</p>
+<ul>
+<li>Pull latest code</li>
+<li>Run database migrations</li>
+<li>Test before deploying</li>
+</ul>
+</li>
+<li>
+<p>Monitoring</p>
+<ul>
+<li>Check error rates</li>
+<li>Monitor disk space</li>
+<li>Review access logs</li>
+</ul>
 </li>
 </ol> <footer data-astro-cid-3xjdol5s> <a href="/documentation" class="back-link" data-astro-cid-3xjdol5s>&larr; Back to Documentation</a> </footer> </article> </main>  </main> <footer> <p>Powered by Go and Astro with Deno</p> </footer> </div> </body></html> 
